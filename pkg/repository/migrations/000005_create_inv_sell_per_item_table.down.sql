@@ -1,0 +1,1 @@
+drop table if exists inv_sell_per_item;

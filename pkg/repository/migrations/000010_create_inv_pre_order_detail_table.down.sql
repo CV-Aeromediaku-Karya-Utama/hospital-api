@@ -1,0 +1,1 @@
+drop table if exists inv_pre_order_detail;
