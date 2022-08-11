@@ -3,8 +3,8 @@ package repository
 import (
 	"database/sql"
 	"fmt"
+	"inventory-api/pkg/api/request"
 	"log"
-	"weight-tracker-api/pkg/api/request"
 )
 
 func (s *storage) CreateUser(request request.NewUserRequest) error {

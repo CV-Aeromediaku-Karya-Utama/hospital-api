@@ -3,17 +3,22 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"log"
 	"os"
 
-	"weight-tracker-api/pkg/api"
-	"weight-tracker-api/pkg/app"
-	"weight-tracker-api/pkg/repository"
+	"inventory-api/pkg/api"
+	"inventory-api/pkg/app"
+	"inventory-api/pkg/repository"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 )
 
 func main() {
+	if err := godotenv.Load(); err != nil {
+		log.Fatal("Error loading .env file")
+	}
 	if err := run(); err != nil {
 		fmt.Fprintf(os.Stderr, "This is the startup error: %s\n", err)
 		os.Exit(1)
@@ -21,7 +26,13 @@ func main() {
 }
 
 func run() error {
-	connectionString := "root:@tcp(localhost:3306)/test"
+	connectionString := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s",
+		os.Getenv("DB_USER"),
+		os.Getenv("DB_PASS"),
+		os.Getenv("DB_HOST"),
+		os.Getenv("DB_PORT"),
+		os.Getenv("DB_NAME"),
+	)
 	db, err := setupDatabase(connectionString)
 	if err != nil {
 		return err

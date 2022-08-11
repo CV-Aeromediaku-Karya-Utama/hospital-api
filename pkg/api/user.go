@@ -3,8 +3,8 @@ package api
 import (
 	"errors"
 	"fmt"
+	"inventory-api/pkg/api/request"
 	"strings"
-	"weight-tracker-api/pkg/api/request"
 )
 
 // UserService contains the methods of the user service

@@ -1,8 +1,8 @@
 package repository
 
 import (
+	"inventory-api/pkg/api/request"
 	"log"
-	"weight-tracker-api/pkg/api/request"
 )
 
 func (s *storage) CreateRole(r request.NewRoleRequest) error {

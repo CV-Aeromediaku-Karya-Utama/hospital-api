@@ -2,8 +2,8 @@ package app
 
 import (
 	"github.com/gin-gonic/gin"
+	"inventory-api/pkg/api"
 	"log"
-	"weight-tracker-api/pkg/api"
 )
 
 type Server struct {

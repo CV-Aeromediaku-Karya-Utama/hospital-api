@@ -2,10 +2,10 @@ package test
 
 import (
 	"errors"
+	"inventory-api/pkg/api"
+	"inventory-api/pkg/api/request"
 	"reflect"
 	"testing"
-	"weight-tracker-api/pkg/api"
-	"weight-tracker-api/pkg/api/request"
 )
 
 type mockRoleRepo struct{}

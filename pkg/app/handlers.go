@@ -2,9 +2,9 @@ package app
 
 import (
 	"github.com/gin-gonic/gin"
+	"inventory-api/pkg/api/request"
 	"log"
 	"net/http"
-	"weight-tracker-api/pkg/api/request"
 )
 
 func (s *Server) ApiStatus() gin.HandlerFunc {

@@ -2,8 +2,8 @@ package api
 
 import (
 	"errors"
+	"inventory-api/pkg/api/request"
 	"strings"
-	"weight-tracker-api/pkg/api/request"
 )
 
 // RoleService contains the methods of the user service
