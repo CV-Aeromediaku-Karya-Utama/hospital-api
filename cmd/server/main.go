@@ -31,8 +31,7 @@ func run() error {
 		os.Getenv("DB_PASS"),
 		os.Getenv("DB_HOST"),
 		os.Getenv("DB_PORT"),
-		os.Getenv("DB_NAME"),
-	)
+		os.Getenv("DB_NAME"))
 	db, err := setupDatabase(connectionString)
 	if err != nil {
 		return err
@@ -52,9 +51,10 @@ func run() error {
 	// create services
 	roleService := api.NewRoleService(storage)
 	userService := api.NewUserService(storage)
+	authService := api.NewAuthService(storage)
 
 	// start the server
-	server := app.NewServer(router, roleService, userService)
+	server := app.NewServer(router, authService, roleService, userService)
 	err = server.Run()
 	if err != nil {
 		return err

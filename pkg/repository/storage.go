@@ -18,6 +18,7 @@ type Storage interface {
 	RunMigrations(connectionString string, db *sql.DB) error
 	api.UserRepository
 	api.RoleRepository
+	api.AuthRepository
 }
 
 type storage struct {

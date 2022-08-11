@@ -21,3 +21,10 @@ type User struct {
 	Email     string    `json:"email"`
 	RoleID    string    `json:"role_id"`
 }
+
+type SingleUser struct {
+	ID       uint   `json:"id"`
+	Username string `json:"username"`
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}

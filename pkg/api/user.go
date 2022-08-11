@@ -14,8 +14,9 @@ type UserService interface {
 
 // UserRepository is what lets our service do db operations without knowing anything about the implementation
 type UserRepository interface {
+	HashPassword(password string) (string, error)
 	CreateUser(request.NewUserRequest) error
-	GetRole(RoleID int) (request.Role, error)
+	GetRoleById(RoleID int) (request.Role, error)
 }
 
 type userService struct {
@@ -30,7 +31,7 @@ func NewUserService(userRepo UserRepository) UserService {
 
 func (u *userService) New(user request.NewUserRequest) error {
 	fmt.Println(user)
-	role, err := u.storage.GetRole(user.RoleID)
+	role, err := u.storage.GetRoleById(user.RoleID)
 	if err != nil {
 		return err
 	}
@@ -47,10 +48,15 @@ func (u *userService) New(user request.NewUserRequest) error {
 	user.Name = strings.ToLower(user.Name)
 	user.Email = strings.TrimSpace(user.Email)
 
+	hash, err := u.storage.HashPassword(user.Password)
+	if err != nil {
+		return err
+	}
+
 	newUser := request.NewUserRequest{
 		Name:     user.Name,
 		Username: user.Username,
-		Password: user.Password,
+		Password: hash,
 		Sex:      user.Sex,
 		Email:    user.Email,
 		RoleID:   role.ID,

@@ -1,6 +1,8 @@
 package repository
 
 import (
+	"database/sql"
+	"fmt"
 	"inventory-api/pkg/api/request"
 	"log"
 )
@@ -42,6 +44,22 @@ func (s *storage) ListRole() ([]request.Role, error) {
 	}
 
 	return roles, nil
+}
+
+func (s *storage) GetRoleById(roleID int) (request.Role, error) {
+	var role request.Role
+	err := s.db.QueryRow("SELECT * FROM role WHERE id = ?", roleID).Scan(&role.ID, &role.Name)
+
+	if err == sql.ErrNoRows {
+		return request.Role{}, fmt.Errorf("unknown value : %d", roleID)
+	}
+
+	if err != nil {
+		log.Printf("this was the error: %v", err.Error())
+		return request.Role{}, err
+	}
+
+	return role, nil
 }
 
 func (s *storage) UpdateRole(RoleID int, role request.UpdateRoleRequest) (request.UpdateRoleRequest, error) {

@@ -23,18 +23,34 @@ func (s *storage) CreateUser(request request.NewUserRequest) error {
 	return nil
 }
 
-func (s *storage) GetRole(roleID int) (request.Role, error) {
-	var role request.Role
-	err := s.db.QueryRow("SELECT * FROM role WHERE id = ?", roleID).Scan(&role.ID, &role.Name)
+func (s *storage) GetUserByEmail(email string) (request.SingleUser, error) {
+	var data request.SingleUser
+	err := s.db.QueryRow("SELECT id,username,email,password FROM user WHERE email = ?", email).Scan(&data.ID, &data.Username, &data.Email, &data.Password)
 
 	if err == sql.ErrNoRows {
-		return request.Role{}, fmt.Errorf("unknown value : %d", roleID)
+		return request.SingleUser{}, fmt.Errorf("unknown value : %s", email)
 	}
 
 	if err != nil {
 		log.Printf("this was the error: %v", err.Error())
-		return request.Role{}, err
+		return request.SingleUser{}, err
 	}
 
-	return role, nil
+	return data, nil
+}
+
+func (s *storage) GetUserByUsername(username string) (request.SingleUser, error) {
+	var data request.SingleUser
+	err := s.db.QueryRow("SELECT id,username,email,password FROM user WHERE username = ?", username).Scan(&data.ID, &data.Username, &data.Email, &data.Password)
+
+	if err == sql.ErrNoRows {
+		return request.SingleUser{}, fmt.Errorf("unknown value : %s", username)
+	}
+
+	if err != nil {
+		log.Printf("this was the error: %v", err.Error())
+		return request.SingleUser{}, err
+	}
+
+	return data, nil
 }

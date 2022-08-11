@@ -8,17 +8,20 @@ import (
 
 type Server struct {
 	router      *gin.Engine
+	authService api.AuthService
 	roleService api.RoleService
 	userService api.UserService
 }
 
 func NewServer(
 	router *gin.Engine,
+	authService api.AuthService,
 	roleService api.RoleService,
 	userService api.UserService,
 ) *Server {
 	return &Server{
 		router:      router,
+		authService: authService,
 		roleService: roleService,
 		userService: userService,
 	}
