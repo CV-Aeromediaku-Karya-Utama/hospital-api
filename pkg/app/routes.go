@@ -1,6 +1,9 @@
 package app
 
-import "github.com/gin-gonic/gin"
+import (
+	"github.com/gin-gonic/gin"
+	"inventory-api/pkg/app/middleware"
+)
 
 func (s *Server) Routes() *gin.Engine {
 	router := s.router
@@ -11,6 +14,7 @@ func (s *Server) Routes() *gin.Engine {
 		v1.GET("/login", s.Login())
 		role := v1.Group("/role")
 		{
+			role.Use(middleware.JwtTokenCheck)
 			role.GET("/list", s.ListRole())
 			role.POST("/create", s.CreateRole())
 			role.PUT("/update", s.UpdateRole())
