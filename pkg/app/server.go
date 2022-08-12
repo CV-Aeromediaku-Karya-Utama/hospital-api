@@ -1,9 +1,11 @@
 package app
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"inventory-api/pkg/api"
 	"log"
+	"os"
 )
 
 type Server struct {
@@ -32,7 +34,8 @@ func (s *Server) Run() error {
 	r := s.Routes()
 
 	// run the server through the router
-	err := r.Run()
+	port := fmt.Sprintf(":%s", os.Getenv("APP_PORT"))
+	err := r.Run(port)
 
 	if err != nil {
 		log.Printf("Server - there was an error calling Run on router: %v", err)

@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v4"
 	"net/http"
+	"os"
 	"strings"
 )
 
@@ -36,7 +37,7 @@ func parseToken(jwtToken string) (*jwt.Token, error) {
 		if _, OK := token.Method.(*jwt.SigningMethodHMAC); !OK {
 			return nil, errors.New("bad signed method received")
 		}
-		return []byte("secret"), nil
+		return []byte(os.Getenv("JWT_SECRET")), nil
 	})
 
 	if err != nil {

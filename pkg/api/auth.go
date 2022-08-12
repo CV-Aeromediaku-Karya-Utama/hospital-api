@@ -1,9 +1,9 @@
 package api
 
 import (
-	"fmt"
 	"github.com/golang-jwt/jwt/v4"
 	"inventory-api/pkg/api/request"
+	"os"
 	"time"
 )
 
@@ -43,7 +43,7 @@ func (a authService) Login(input request.LoginInput) (string, error) {
 		return "User not found", err
 	}
 
-	if !a.storage.CheckPasswordHash(input.Identity, singleUser.Password) {
+	if !a.storage.CheckPasswordHash(input.Password, singleUser.Password) {
 		return "Invalid password", err
 	}
 
@@ -52,10 +52,9 @@ func (a authService) Login(input request.LoginInput) (string, error) {
 	claims := token.Claims.(jwt.MapClaims)
 	claims["username"] = singleUser.Username
 	claims["user_id"] = singleUser.ID
-	claims["exp"] = time.Now().Add(time.Minute * 60).Unix()
+	claims["exp"] = time.Now().Add(time.Second * 60).Unix()
 
-	t, err := token.SignedString([]byte("secret"))
-	fmt.Println(t)
+	t, err := token.SignedString([]byte(os.Getenv("JWT_SECRET")))
 	return t, err
 }
 
