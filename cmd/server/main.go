@@ -26,12 +26,15 @@ func main() {
 }
 
 func run() error {
-	connectionString := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s",
-		os.Getenv("DB_USER"),
-		os.Getenv("DB_PASS"),
-		os.Getenv("DB_HOST"),
-		os.Getenv("DB_PORT"),
-		os.Getenv("DB_NAME"))
+	connectionString := ""
+	if os.Getenv("DB_DRIVER") == "mysql" {
+		connectionString = fmt.Sprintf("%s:%s@tcp(%s:%s)/%s",
+			os.Getenv("DB_USER"), os.Getenv("DB_PASS"), os.Getenv("DB_HOST"), os.Getenv("DB_PORT"), os.Getenv("DB_NAME"))
+	}
+	if os.Getenv("DB_DRIVER") == "postgres" {
+		connectionString = fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
+			os.Getenv("DB_HOST"), os.Getenv("DB_PORT"), os.Getenv("DB_USER"), os.Getenv("DB_PASS"), os.Getenv("DB_NAME"))
+	}
 	db, err := setupDatabase(connectionString)
 	if err != nil {
 		return err
@@ -63,7 +66,7 @@ func run() error {
 }
 
 func setupDatabase(connString string) (*sql.DB, error) {
-	db, err := sql.Open("mysql", connString)
+	db, err := sql.Open(os.Getenv("DB_DRIVER"), connString)
 	if err != nil {
 		return nil, err
 	}
