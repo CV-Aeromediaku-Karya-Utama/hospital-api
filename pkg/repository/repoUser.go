@@ -5,15 +5,20 @@ import (
 	"fmt"
 	"inventory-api/pkg/api/request"
 	"log"
+	"os"
 )
 
 func (s *storage) CreateUser(request request.NewUserRequest) error {
-	newUserStatement := `
-		INSERT INTO user (name, username, password, sex, email, role_id) 
-		VALUES (?, ?, ?, ?, ?, ?);
-		`
+	statement := ``
 
-	err := s.db.QueryRow(newUserStatement, request.Name, request.Username, request.Password, request.Sex, request.Email, request.RoleID).Err()
+	if os.Getenv("DB_DRIVER") == "mysql" {
+		statement = `INSERT INTO user (name, username, password, sex, email, role_id) VALUES (?, ?, ?, ?, ?, ?);`
+	}
+	if os.Getenv("DB_DRIVER") == "postgres" {
+		statement = `INSERT INTO "user" (name, username, password, sex, email, role_id) VALUES ($1, $2, $3, $4, $5, $6);`
+	}
+
+	err := s.db.QueryRow(statement, request.Name, request.Username, request.Password, request.Sex, request.Email, request.RoleID).Err()
 
 	if err != nil {
 		log.Printf("this was the error: %v", err)
@@ -25,7 +30,17 @@ func (s *storage) CreateUser(request request.NewUserRequest) error {
 
 func (s *storage) GetUserByEmail(email string) (request.SingleUser, error) {
 	var data request.SingleUser
-	err := s.db.QueryRow("SELECT id,username,email,password FROM user WHERE email = ?", email).Scan(&data.ID, &data.Username, &data.Email, &data.Password)
+
+	statement := ``
+
+	if os.Getenv("DB_DRIVER") == "mysql" {
+		statement = `SELECT id,username,email,password FROM user WHERE email = ?;`
+	}
+	if os.Getenv("DB_DRIVER") == "postgres" {
+		statement = `SELECT id,username,email,password FROM "user" WHERE email = $1;`
+	}
+
+	err := s.db.QueryRow(statement, email).Scan(&data.ID, &data.Username, &data.Email, &data.Password)
 
 	if err == sql.ErrNoRows {
 		return request.SingleUser{}, fmt.Errorf("unknown value : %s", email)
@@ -41,7 +56,17 @@ func (s *storage) GetUserByEmail(email string) (request.SingleUser, error) {
 
 func (s *storage) GetUserByUsername(username string) (request.SingleUser, error) {
 	var data request.SingleUser
-	err := s.db.QueryRow("SELECT id,username,email,password FROM user WHERE username = ?", username).Scan(&data.ID, &data.Username, &data.Email, &data.Password)
+
+	statement := ``
+
+	if os.Getenv("DB_DRIVER") == "mysql" {
+		statement = `SELECT id,username,email,password FROM user WHERE username = ?;`
+	}
+	if os.Getenv("DB_DRIVER") == "postgres" {
+		statement = `SELECT id,username,email,password FROM "user" WHERE username = $1;`
+	}
+
+	err := s.db.QueryRow(statement, username).Scan(&data.ID, &data.Username, &data.Email, &data.Password)
 
 	if err == sql.ErrNoRows {
 		return request.SingleUser{}, fmt.Errorf("unknown value : %s", username)

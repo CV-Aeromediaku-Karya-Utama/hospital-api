@@ -5,13 +5,18 @@ import (
 	"fmt"
 	"inventory-api/pkg/api/request"
 	"log"
+	"os"
 )
 
 func (s *storage) CreateRole(r request.NewRoleRequest) error {
-	statement := `
-		INSERT INTO role (name) 
-		VALUES (?);
-		`
+	statement := ``
+
+	if os.Getenv("DB_DRIVER") == "mysql" {
+		statement = `INSERT INTO role (name) VALUES (?);`
+	}
+	if os.Getenv("DB_DRIVER") == "postgres" {
+		statement = `INSERT INTO role (name) VALUES ($1);`
+	}
 
 	err := s.db.QueryRow(statement, r.Name).Err()
 
@@ -24,7 +29,17 @@ func (s *storage) CreateRole(r request.NewRoleRequest) error {
 }
 
 func (s *storage) ListRole() ([]request.Role, error) {
-	rows, err := s.db.Query("SELECT * FROM role")
+	statement := ``
+
+	if os.Getenv("DB_DRIVER") == "mysql" {
+		statement = `SELECT * FROM role`
+	}
+	if os.Getenv("DB_DRIVER") == "postgres" {
+		statement = `SELECT * FROM role`
+	}
+
+	rows, err := s.db.Query(statement)
+
 	if err != nil {
 		log.Printf("this was the error: %v", err)
 		return nil, err
@@ -48,7 +63,17 @@ func (s *storage) ListRole() ([]request.Role, error) {
 
 func (s *storage) GetRoleById(roleID int) (request.Role, error) {
 	var role request.Role
-	err := s.db.QueryRow("SELECT * FROM role WHERE id = ?", roleID).Scan(&role.ID, &role.Name)
+
+	statement := ``
+
+	if os.Getenv("DB_DRIVER") == "mysql" {
+		statement = `SELECT * FROM role WHERE id = ?`
+	}
+	if os.Getenv("DB_DRIVER") == "postgres" {
+		statement = `SELECT * FROM role WHERE id = $1`
+	}
+
+	err := s.db.QueryRow(statement, roleID).Scan(&role.ID, &role.Name)
 
 	if err == sql.ErrNoRows {
 		return request.Role{}, fmt.Errorf("unknown value : %d", roleID)
@@ -63,9 +88,14 @@ func (s *storage) GetRoleById(roleID int) (request.Role, error) {
 }
 
 func (s *storage) UpdateRole(RoleID int, role request.UpdateRoleRequest) (request.UpdateRoleRequest, error) {
-	statement := `
-		UPDATE role SET name = ? WHERE id = ?
-		`
+	statement := ``
+
+	if os.Getenv("DB_DRIVER") == "mysql" {
+		statement = `UPDATE role SET name = ? WHERE id = ?`
+	}
+	if os.Getenv("DB_DRIVER") == "postgres" {
+		statement = `UPDATE role SET name = $1 WHERE id = $2`
+	}
 
 	err := s.db.QueryRow(statement, role.Name, RoleID).Err()
 
@@ -78,9 +108,14 @@ func (s *storage) UpdateRole(RoleID int, role request.UpdateRoleRequest) (reques
 }
 
 func (s *storage) DeleteRole(RoleID int) error {
-	statement := `
-		DELETE FROM role WHERE id = ?
-		`
+	statement := ``
+
+	if os.Getenv("DB_DRIVER") == "mysql" {
+		statement = `DELETE FROM role WHERE id = ?`
+	}
+	if os.Getenv("DB_DRIVER") == "postgres" {
+		statement = `DELETE FROM role WHERE id = $1`
+	}
 
 	err := s.db.QueryRow(statement, RoleID).Err()
 
