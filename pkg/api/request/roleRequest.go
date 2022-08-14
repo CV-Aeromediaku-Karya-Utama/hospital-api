@@ -12,7 +12,3 @@ type Role struct {
 type UpdateRoleRequest struct {
 	Name string `json:"name"`
 }
-
-type DeleteRoleRequest struct {
-	Name string `json:"name"`
-}

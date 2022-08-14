@@ -10,6 +10,9 @@ import (
 // UserService contains the methods of the user service
 type UserService interface {
 	New(user request.NewUserRequest) error
+	List() ([]request.User, error)
+	Update(UserID int, request request.UpdateUserRequest) error
+	Delete(UserID int) error
 }
 
 // UserRepository is what lets our service do db operations without knowing anything about the implementation
@@ -17,16 +20,31 @@ type UserRepository interface {
 	HashPassword(password string) (string, error)
 	CreateUser(request.NewUserRequest) error
 	GetRoleById(RoleID int) (request.Role, error)
+	ListUser() ([]request.User, error)
+	UpdateUser(UserUD int, role request.UpdateUserRequest) (request.UpdateUserRequest, error)
+	DeleteUser(UserID int) error
 }
 
 type userService struct {
 	storage UserRepository
 }
 
-func NewUserService(userRepo UserRepository) UserService {
-	return &userService{
-		storage: userRepo,
+func (u *userService) List() ([]request.User, error) {
+	data, err := u.storage.ListUser()
+	if err != nil {
+		return nil, err
 	}
+	return data, nil
+}
+
+func (u *userService) Update(UserID int, request request.UpdateUserRequest) error {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (u *userService) Delete(UserID int) error {
+	//TODO implement me
+	panic("implement me")
 }
 
 func (u *userService) New(user request.NewUserRequest) error {
@@ -69,4 +87,10 @@ func (u *userService) New(user request.NewUserRequest) error {
 	}
 
 	return nil
+}
+
+func NewUserService(userRepo UserRepository) UserService {
+	return &userService{
+		storage: userRepo,
+	}
 }

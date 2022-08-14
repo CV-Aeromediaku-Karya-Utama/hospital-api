@@ -1,6 +1,9 @@
 package request
 
-import "time"
+import (
+	"database/sql"
+	"time"
+)
 
 type NewUserRequest struct {
 	Name     string `json:"name"`
@@ -12,8 +15,17 @@ type NewUserRequest struct {
 }
 
 type User struct {
-	ID        int       `json:"id"`
-	CreatedAt time.Time `json:"created_at"`
+	ID        int          `json:"id"`
+	CreatedAt time.Time    `json:"created_at"`
+	UpdatedAt sql.NullTime `json:"updated_at"`
+	Name      string       `json:"name"`
+	Username  string       `json:"username"`
+	Sex       string       `json:"sex"`
+	Email     string       `json:"email"`
+	RoleID    string       `json:"role_id"`
+}
+
+type UpdateUserRequest struct {
 	UpdatedAt time.Time `json:"updated_at"`
 	Name      string    `json:"name"`
 	Username  string    `json:"username"`

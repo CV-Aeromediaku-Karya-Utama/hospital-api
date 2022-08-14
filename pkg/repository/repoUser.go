@@ -79,3 +79,55 @@ func (s *storage) GetUserByUsername(username string) (request.SingleUser, error)
 
 	return data, nil
 }
+
+func (s *storage) ListUser() ([]request.User, error) {
+	statement := ``
+
+	if os.Getenv("DB_DRIVER") == "mysql" {
+		statement = `SELECT id, created_at, updated_at, name, username, sex, email, role_id FROM user`
+	}
+	if os.Getenv("DB_DRIVER") == "postgres" {
+		statement = `SELECT id, created_at, updated_at, name, username, sex, email, role_id FROM "user"`
+	}
+
+	rows, err := s.db.Query(statement)
+
+	if err != nil {
+		log.Printf("this was the error: %v", err)
+		return nil, err
+	}
+	defer rows.Close()
+
+	// slice to hold data from returned rows.
+	var data []request.User
+
+	// Loop through rows, using Scan to assign column data to struct fields.
+	for rows.Next() {
+		var item request.User
+		if err := rows.Scan(
+			&item.ID,
+			&item.CreatedAt,
+			&item.UpdatedAt,
+			&item.Name,
+			&item.Username,
+			&item.Sex,
+			&item.Email,
+			&item.RoleID,
+		); err != nil {
+			return data, err
+		}
+		data = append(data, item)
+	}
+
+	return data, nil
+}
+
+func (s *storage) UpdateUser(UserUD int, role request.UpdateUserRequest) (request.UpdateUserRequest, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (s *storage) DeleteUser(UserID int) error {
+	//TODO implement me
+	panic("implement me")
+}

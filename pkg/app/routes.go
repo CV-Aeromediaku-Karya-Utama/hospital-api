@@ -2,7 +2,21 @@ package app
 
 import (
 	"github.com/gin-gonic/gin"
+	"net/http"
 )
+
+func (s *Server) ApiStatus() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.Header("Content-Type", "application/json")
+
+		response := map[string]string{
+			"status": "success",
+			"data":   "weight tracker API running smoothly",
+		}
+
+		c.JSON(http.StatusOK, response)
+	}
+}
 
 func (s *Server) Routes() *gin.Engine {
 	router := s.router
@@ -16,12 +30,13 @@ func (s *Server) Routes() *gin.Engine {
 			//role.Use(middleware.JwtTokenCheck)
 			role.GET("/list", s.ListRole())
 			role.POST("/create", s.CreateRole())
-			role.PUT("/update", s.UpdateRole())
-			role.DELETE("/delete", s.DeleteRole())
+			role.PUT("/update/:id", s.UpdateRole())
+			role.DELETE("/delete/:id", s.DeleteRole())
 		}
 		user := v1.Group("/user")
 		{
 			user.POST("/create", s.CreateUser())
+			user.GET("/list", s.ListUser())
 		}
 	}
 

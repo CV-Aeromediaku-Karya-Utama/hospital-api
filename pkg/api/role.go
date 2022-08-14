@@ -26,8 +26,12 @@ type roleService struct {
 	storage RoleRepository
 }
 
-func (s *roleService) Update(RoleID int, role request.UpdateRoleRequest) (request.UpdateRoleRequest, error) {
-	role, err := s.storage.UpdateRole(RoleID, role)
+func (s *roleService) Update(RoleID int, r request.UpdateRoleRequest) (request.UpdateRoleRequest, error) {
+	if r.Name == "" {
+		return r, errors.New("role service - name required")
+	}
+	r.Name = strings.ToUpper(r.Name)
+	role, err := s.storage.UpdateRole(RoleID, r)
 	if err != nil {
 		return request.UpdateRoleRequest{}, err
 	}
