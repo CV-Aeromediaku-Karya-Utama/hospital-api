@@ -16,13 +16,13 @@ type NewUserRequest struct {
 
 type User struct {
 	ID        int          `json:"id"`
-	CreatedAt time.Time    `json:"created_at"`
+	CreatedAt sql.NullTime `json:"created_at"`
 	UpdatedAt sql.NullTime `json:"updated_at"`
 	Name      string       `json:"name"`
 	Username  string       `json:"username"`
 	Sex       string       `json:"sex"`
 	Email     string       `json:"email"`
-	RoleID    string       `json:"role_id"`
+	Role      Role         `json:"role_id"`
 }
 
 type UpdateUserRequest struct {

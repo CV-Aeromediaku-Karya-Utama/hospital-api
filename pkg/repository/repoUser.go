@@ -84,10 +84,16 @@ func (s *storage) ListUser() ([]request.User, error) {
 	statement := ``
 
 	if os.Getenv("DB_DRIVER") == "mysql" {
-		statement = `SELECT id, created_at, updated_at, name, username, sex, email, role_id FROM user`
+		statement = `SELECT a.id, a.created_at, a.updated_at, a.name, a.username, a.sex, a.email, b.id, b.name
+					 FROM user a
+					 INNER JOIN role b
+					 ON a.role_id = b.id`
 	}
 	if os.Getenv("DB_DRIVER") == "postgres" {
-		statement = `SELECT id, created_at, updated_at, name, username, sex, email, role_id FROM "user"`
+		statement = `SELECT a.id, a.created_at, a.updated_at, a.name, a.username, a.sex, a.email, b.id, b.name
+					 FROM "user" a
+					 INNER JOIN role b
+					 ON a.role_id = b.id`
 	}
 
 	rows, err := s.db.Query(statement)
@@ -104,6 +110,8 @@ func (s *storage) ListUser() ([]request.User, error) {
 	// Loop through rows, using Scan to assign column data to struct fields.
 	for rows.Next() {
 		var item request.User
+		var role request.Role
+
 		if err := rows.Scan(
 			&item.ID,
 			&item.CreatedAt,
@@ -112,11 +120,24 @@ func (s *storage) ListUser() ([]request.User, error) {
 			&item.Username,
 			&item.Sex,
 			&item.Email,
-			&item.RoleID,
+			&role.ID,
+			&role.Name,
 		); err != nil {
 			return data, err
 		}
-		data = append(data, item)
+		data = append(data, request.User{
+			ID:        item.ID,
+			CreatedAt: item.CreatedAt,
+			UpdatedAt: item.UpdatedAt,
+			Name:      item.Name,
+			Username:  item.Username,
+			Sex:       item.Sex,
+			Email:     item.Email,
+			Role: request.Role{
+				ID:   role.ID,
+				Name: role.Name,
+			},
+		})
 	}
 
 	return data, nil
