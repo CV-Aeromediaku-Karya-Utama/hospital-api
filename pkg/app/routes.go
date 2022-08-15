@@ -37,6 +37,8 @@ func (s *Server) Routes() *gin.Engine {
 		{
 			user.POST("/create", s.CreateUser())
 			user.GET("/list", s.ListUser())
+			user.PUT("/update/:id", s.UpdateUser())
+			user.DELETE("/delete/:id", s.DeleteUser())
 		}
 	}
 

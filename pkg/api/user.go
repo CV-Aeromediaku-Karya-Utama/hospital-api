@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"inventory-api/pkg/api/request"
 	"strings"
+	"time"
 )
 
 // UserService contains the methods of the user service
@@ -21,7 +22,7 @@ type UserRepository interface {
 	CreateUser(request.NewUserRequest) error
 	GetRoleById(RoleID int) (request.Role, error)
 	ListUser() ([]request.User, error)
-	UpdateUser(UserUD int, role request.UpdateUserRequest) (request.UpdateUserRequest, error)
+	UpdateUser(UserUD int, role request.UpdateUserRequest) error
 	DeleteUser(UserID int) error
 }
 
@@ -38,13 +39,41 @@ func (u *userService) List() ([]request.User, error) {
 }
 
 func (u *userService) Update(UserID int, request request.UpdateUserRequest) error {
-	//TODO implement me
-	panic("implement me")
+	if request.Name == "" {
+		return errors.New("user service - name required")
+	}
+	if request.Username == "" {
+		return errors.New("user service - Username required")
+	}
+	if request.Sex == "" {
+		return errors.New("user service - Sex required")
+	}
+	if request.Email == "" {
+		return errors.New("user service - Email required")
+	}
+	if request.RoleID == 0 {
+		return errors.New("user service - RoleID required")
+	}
+	request.UpdatedAt = time.Now()
+
+	_, err := u.storage.GetRoleById(request.RoleID)
+	if err != nil {
+		return err
+	}
+
+	err = u.storage.UpdateUser(UserID, request)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (u *userService) Delete(UserID int) error {
-	//TODO implement me
-	panic("implement me")
+	err := u.storage.DeleteUser(UserID)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (u *userService) New(user request.NewUserRequest) error {

@@ -126,29 +126,59 @@ func (s *storage) ListUser() ([]request.User, error) {
 			return data, err
 		}
 		data = append(data, request.User{
-			ID:        item.ID,
-			CreatedAt: item.CreatedAt,
-			UpdatedAt: item.UpdatedAt,
-			Name:      item.Name,
-			Username:  item.Username,
-			Sex:       item.Sex,
-			Email:     item.Email,
+			ID:       item.ID,
+			Name:     item.Name,
+			Username: item.Username,
+			Sex:      item.Sex,
+			Email:    item.Email,
 			Role: request.Role{
 				ID:   role.ID,
 				Name: role.Name,
 			},
+			CreatedAt: item.CreatedAt,
+			UpdatedAt: item.UpdatedAt,
 		})
 	}
 
 	return data, nil
 }
 
-func (s *storage) UpdateUser(UserUD int, role request.UpdateUserRequest) (request.UpdateUserRequest, error) {
-	//TODO implement me
-	panic("implement me")
+func (s *storage) UpdateUser(UserID int, r request.UpdateUserRequest) error {
+	statement := ``
+
+	if os.Getenv("DB_DRIVER") == "mysql" {
+		statement = `UPDATE user SET name = ?, username = ?, sex = ?, email = ?, role_id = ?, created_at = ? WHERE id = ?`
+	}
+	if os.Getenv("DB_DRIVER") == "postgres" {
+		statement = `UPDATE "user" SET name = $1, username = $2, sex = $3, email = $4, role_id = $5, created_at = $6 WHERE id = $7`
+	}
+
+	err := s.db.QueryRow(statement, r.Name, r.Username, r.Sex, r.Email, r.RoleID, r.UpdatedAt, UserID).Err()
+
+	if err != nil {
+		log.Printf("this was the error: %v", err)
+		return err
+	}
+
+	return nil
 }
 
 func (s *storage) DeleteUser(UserID int) error {
-	//TODO implement me
-	panic("implement me")
+	statement := ``
+
+	if os.Getenv("DB_DRIVER") == "mysql" {
+		statement = `DELETE FROM user WHERE id = ?`
+	}
+	if os.Getenv("DB_DRIVER") == "postgres" {
+		statement = `DELETE FROM "user" WHERE id = $1`
+	}
+
+	err := s.db.QueryRow(statement, UserID).Err()
+
+	if err != nil {
+		log.Printf("this was the error: %v", err)
+		return err
+	}
+
+	return nil
 }
