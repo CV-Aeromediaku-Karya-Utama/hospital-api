@@ -2,7 +2,6 @@ package api
 
 import (
 	"errors"
-	"fmt"
 	"inventory-api/pkg/api/request"
 	"strings"
 	"time"
@@ -66,7 +65,6 @@ func (u *userService) Update(UserID int, request request.UpdateUserRequest) erro
 	}
 	request.UpdatedAt = time.Now()
 
-	fmt.Println(request.UpdatedAt)
 	_, err := u.storage.GetUserByID(UserID)
 	if err != nil {
 		return errors.New("user id not found")
@@ -93,13 +91,11 @@ func (u *userService) Delete(UserID int) error {
 }
 
 func (u *userService) New(user request.NewUserRequest) error {
-	fmt.Println(user)
 	role, err := u.storage.GetRoleById(user.RoleID)
 	if err != nil {
 		return err
 	}
 
-	// do some basic validations
 	if user.Email == "" {
 		return errors.New("user service - email required")
 	}

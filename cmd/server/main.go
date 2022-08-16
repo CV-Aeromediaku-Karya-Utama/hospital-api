@@ -55,9 +55,18 @@ func run() error {
 	roleService := api.NewRoleService(storage)
 	userService := api.NewUserService(storage)
 	authService := api.NewAuthService(storage)
+	productCategoryService := api.NewProductCategoryService(storage)
+	productService := api.NewProductService(storage)
 
 	// start the server
-	server := app.NewServer(router, authService, roleService, userService)
+	server := app.NewServer(
+		router,
+		authService,
+		roleService,
+		userService,
+		productCategoryService,
+		productService,
+	)
 	err = server.Run()
 	if err != nil {
 		return err

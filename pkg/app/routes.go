@@ -42,6 +42,15 @@ func (s *Server) Routes() *gin.Engine {
 			user.PUT("/update/:id", s.UpdateUser())
 			user.DELETE("/delete/:id", s.DeleteUser())
 		}
+		productCategory := v1.Group("/product_category")
+		{
+			//role.Use(middleware.JwtTokenCheck)
+			productCategory.GET("/list", s.ListProductCategory())
+			productCategory.GET("/detail/:id", s.productCategoryDetail())
+			productCategory.POST("/create", s.CreateProductCategory())
+			productCategory.PUT("/update/:id", s.UpdateProductCategory())
+			productCategory.DELETE("/delete/:id", s.DeleteProductCategory())
+		}
 	}
 
 	return router
