@@ -14,6 +14,7 @@ type UserService interface {
 	List() ([]request.User, error)
 	Update(UserID int, request request.UpdateUserRequest) error
 	Delete(UserID int) error
+	Detail(UserID int) (request.SingleUser, error)
 }
 
 // UserRepository is what lets our service do db operations without knowing anything about the implementation
@@ -21,6 +22,7 @@ type UserRepository interface {
 	HashPassword(password string) (string, error)
 	CreateUser(request.NewUserRequest) error
 	GetRoleById(RoleID int) (request.Role, error)
+	GetUserByID(id int) (request.SingleUser, error)
 	ListUser() ([]request.User, error)
 	UpdateUser(UserUD int, role request.UpdateUserRequest) error
 	DeleteUser(UserID int) error
@@ -28,6 +30,14 @@ type UserRepository interface {
 
 type userService struct {
 	storage UserRepository
+}
+
+func (u *userService) Detail(UserID int) (request.SingleUser, error) {
+	item, err := u.storage.GetUserByID(UserID)
+	if err != nil {
+		return request.SingleUser{}, errors.New("user id not found")
+	}
+	return item, nil
 }
 
 func (u *userService) List() ([]request.User, error) {
@@ -56,14 +66,20 @@ func (u *userService) Update(UserID int, request request.UpdateUserRequest) erro
 	}
 	request.UpdatedAt = time.Now()
 
-	_, err := u.storage.GetRoleById(request.RoleID)
+	fmt.Println(request.UpdatedAt)
+	_, err := u.storage.GetUserByID(UserID)
 	if err != nil {
-		return err
+		return errors.New("user id not found")
+	}
+
+	_, err = u.storage.GetRoleById(request.RoleID)
+	if err != nil {
+		return errors.New("role id not found")
 	}
 
 	err = u.storage.UpdateUser(UserID, request)
 	if err != nil {
-		return err
+		return errors.New("update failed")
 	}
 	return nil
 }

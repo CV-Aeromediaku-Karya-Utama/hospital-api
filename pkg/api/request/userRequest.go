@@ -36,7 +36,10 @@ type UpdateUserRequest struct {
 
 type SingleUser struct {
 	ID       uint   `json:"id"`
+	Name     string `json:"name"`
 	Username string `json:"username"`
+	Sex      string `json:"sex"`
 	Email    string `json:"email"`
 	Password string `json:"password"`
+	RoleID   int    `json:"role_id"`
 }

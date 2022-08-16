@@ -26,6 +26,11 @@ func (s *Server) Login() gin.HandlerFunc {
 			return
 		}
 
-		c.JSON(http.StatusOK, token)
+		response := map[string]string{
+			"status": "success",
+			"data":   token,
+		}
+
+		c.JSON(http.StatusOK, response)
 	}
 }

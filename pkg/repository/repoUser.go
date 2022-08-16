@@ -28,6 +28,32 @@ func (s *storage) CreateUser(request request.NewUserRequest) error {
 	return nil
 }
 
+func (s *storage) GetUserByID(id int) (request.SingleUser, error) {
+	var data request.SingleUser
+
+	statement := ``
+
+	if os.Getenv("DB_DRIVER") == "mysql" {
+		statement = `SELECT id,username,email,password,name,sex,role_id FROM user WHERE id = ?;`
+	}
+	if os.Getenv("DB_DRIVER") == "postgres" {
+		statement = `SELECT id,username,email,password,name,sex,role_id FROM "user" WHERE id = $1;`
+	}
+
+	err := s.db.QueryRow(statement, id).Scan(&data.ID, &data.Username, &data.Email, &data.Password, &data.Name, &data.Sex, &data.RoleID)
+
+	if err == sql.ErrNoRows {
+		return request.SingleUser{}, fmt.Errorf("unknown value : %s", id)
+	}
+
+	if err != nil {
+		log.Printf("this was the error: %v", err.Error())
+		return request.SingleUser{}, err
+	}
+
+	return data, nil
+}
+
 func (s *storage) GetUserByEmail(email string) (request.SingleUser, error) {
 	var data request.SingleUser
 
@@ -147,10 +173,10 @@ func (s *storage) UpdateUser(UserID int, r request.UpdateUserRequest) error {
 	statement := ``
 
 	if os.Getenv("DB_DRIVER") == "mysql" {
-		statement = `UPDATE user SET name = ?, username = ?, sex = ?, email = ?, role_id = ?, created_at = ? WHERE id = ?`
+		statement = `UPDATE user SET name = ?, username = ?, sex = ?, email = ?, role_id = ?, updated_at = ? WHERE id = ?`
 	}
 	if os.Getenv("DB_DRIVER") == "postgres" {
-		statement = `UPDATE "user" SET name = $1, username = $2, sex = $3, email = $4, role_id = $5, created_at = $6 WHERE id = $7`
+		statement = `UPDATE "user" SET name = $1, username = $2, sex = $3, email = $4, role_id = $5, updated_at = $6 WHERE id = $7`
 	}
 
 	err := s.db.QueryRow(statement, r.Name, r.Username, r.Sex, r.Email, r.RoleID, r.UpdatedAt, UserID).Err()

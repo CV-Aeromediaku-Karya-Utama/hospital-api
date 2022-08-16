@@ -12,11 +12,13 @@ type RoleService interface {
 	List() ([]request.Role, error)
 	Update(RoleID int, role request.UpdateRoleRequest) (request.UpdateRoleRequest, error)
 	Delete(RoleID int) error
+	Detail(RoleID int) (request.Role, error)
 }
 
 // RoleRepository is what lets our service do db operations without knowing anything about the implementation
 type RoleRepository interface {
 	CreateRole(request.NewRoleRequest) error
+	GetRoleById(RoleID int) (request.Role, error)
 	ListRole() ([]request.Role, error)
 	UpdateRole(RoleID int, role request.UpdateRoleRequest) (request.UpdateRoleRequest, error)
 	DeleteRole(RoleID int) error
@@ -31,10 +33,17 @@ func (s *roleService) Update(RoleID int, r request.UpdateRoleRequest) (request.U
 		return r, errors.New("role service - name required")
 	}
 	r.Name = strings.ToUpper(r.Name)
+
+	_, err := s.storage.GetRoleById(RoleID)
+	if err != nil {
+		return request.UpdateRoleRequest{}, err
+	}
+
 	role, err := s.storage.UpdateRole(RoleID, r)
 	if err != nil {
 		return request.UpdateRoleRequest{}, err
 	}
+
 	return role, nil
 }
 
@@ -44,6 +53,14 @@ func (s *roleService) Delete(RoleID int) error {
 		return err
 	}
 	return nil
+}
+
+func (s *roleService) Detail(RoleID int) (request.Role, error) {
+	item, err := s.storage.GetRoleById(RoleID)
+	if err != nil {
+		return request.Role{}, errors.New("role id not found")
+	}
+	return item, nil
 }
 
 func (s *roleService) List() ([]request.Role, error) {

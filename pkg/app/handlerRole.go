@@ -37,6 +37,27 @@ func (s *Server) CreateRole() gin.HandlerFunc {
 	}
 }
 
+func (s *Server) roleDetail() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.Header("Content-Type", "application/json")
+		id, err := strconv.Atoi(c.Param("id"))
+		if err != nil {
+			log.Printf("handler error: %v", err)
+			c.JSON(http.StatusBadRequest, errors.New("ID not found"))
+			return
+		}
+
+		data, err := s.roleService.Detail(id)
+		if err != nil {
+			log.Printf("service error: %v", err)
+			c.JSON(http.StatusInternalServerError, err)
+			return
+		}
+
+		c.JSON(http.StatusOK, data)
+	}
+}
+
 func (s *Server) ListRole() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.Header("Content-Type", "application/json")

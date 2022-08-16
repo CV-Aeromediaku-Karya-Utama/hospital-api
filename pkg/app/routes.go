@@ -29,6 +29,7 @@ func (s *Server) Routes() *gin.Engine {
 		{
 			//role.Use(middleware.JwtTokenCheck)
 			role.GET("/list", s.ListRole())
+			role.GET("/detail/:id", s.roleDetail())
 			role.POST("/create", s.CreateRole())
 			role.PUT("/update/:id", s.UpdateRole())
 			role.DELETE("/delete/:id", s.DeleteRole())
@@ -37,6 +38,7 @@ func (s *Server) Routes() *gin.Engine {
 		{
 			user.POST("/create", s.CreateUser())
 			user.GET("/list", s.ListUser())
+			user.GET("/detail/:id", s.UserDetail())
 			user.PUT("/update/:id", s.UpdateUser())
 			user.DELETE("/delete/:id", s.DeleteUser())
 		}

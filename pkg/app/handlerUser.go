@@ -47,7 +47,38 @@ func (s *Server) ListUser() gin.HandlerFunc {
 			return
 		}
 
-		c.JSON(http.StatusOK, data)
+		response := map[string]any{
+			"status": "success",
+			"data":   data,
+		}
+
+		c.JSON(http.StatusOK, response)
+	}
+}
+
+func (s *Server) UserDetail() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.Header("Content-Type", "application/json")
+		id, err := strconv.Atoi(c.Param("id"))
+		if err != nil {
+			log.Printf("handler error: %v", err)
+			c.JSON(http.StatusBadRequest, errors.New("ID not found"))
+			return
+		}
+
+		data, err := s.userService.Detail(id)
+		if err != nil {
+			log.Printf("service error: %v", err)
+			c.JSON(http.StatusInternalServerError, err)
+			return
+		}
+
+		response := map[string]any{
+			"status": "success",
+			"data":   data,
+		}
+
+		c.JSON(http.StatusOK, response)
 	}
 }
 
@@ -102,6 +133,11 @@ func (s *Server) DeleteUser() gin.HandlerFunc {
 			return
 		}
 
-		c.JSON(http.StatusOK, nil)
+		response := map[string]any{
+			"status": "success",
+			"data":   "user deleted",
+		}
+
+		c.JSON(http.StatusOK, response)
 	}
 }
