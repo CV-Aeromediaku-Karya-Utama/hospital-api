@@ -1,1 +1,0 @@
-drop table if exists inv_buy_per_item;

@@ -5,18 +5,10 @@ import (
 	"fmt"
 	"inventory-api/pkg/api/request"
 	"log"
-	"os"
 )
 
 func (s *storage) CreateProductCategory(request request.NewProductCategoryRequest) error {
-	statement := ``
-
-	if os.Getenv("DB_DRIVER") == "mysql" {
-		statement = `INSERT INTO inv_product_category (name) VALUES (?);`
-	}
-	if os.Getenv("DB_DRIVER") == "postgres" {
-		statement = `INSERT INTO inv_product_category (name) VALUES ($1);`
-	}
+	statement := `INSERT INTO inv_product_category (name) VALUES ($1);`
 
 	err := s.db.QueryRow(statement, request.Name).Err()
 
@@ -31,14 +23,7 @@ func (s *storage) CreateProductCategory(request request.NewProductCategoryReques
 func (s *storage) GetProductCategoryByID(id int) (request.ProductCategory, error) {
 	var item request.ProductCategory
 
-	statement := ``
-
-	if os.Getenv("DB_DRIVER") == "mysql" {
-		statement = `SELECT * FROM inv_product_category WHERE id = ?`
-	}
-	if os.Getenv("DB_DRIVER") == "postgres" {
-		statement = `SELECT * FROM inv_product_category WHERE id = $1`
-	}
+	statement := `SELECT * FROM inv_product_category WHERE id = $1`
 
 	err := s.db.QueryRow(statement, id).Scan(&item.ID, &item.Name)
 
@@ -55,14 +40,7 @@ func (s *storage) GetProductCategoryByID(id int) (request.ProductCategory, error
 }
 
 func (s *storage) ListProductCategory() ([]request.ProductCategory, error) {
-	statement := ``
-
-	if os.Getenv("DB_DRIVER") == "mysql" {
-		statement = `SELECT * FROM inv_product_category`
-	}
-	if os.Getenv("DB_DRIVER") == "postgres" {
-		statement = `SELECT * FROM inv_product_category`
-	}
+	statement := `SELECT * FROM inv_product_category`
 
 	rows, err := s.db.Query(statement)
 
@@ -88,14 +66,7 @@ func (s *storage) ListProductCategory() ([]request.ProductCategory, error) {
 }
 
 func (s *storage) UpdateProductCategory(ProductCategoryID int, request request.UpdateProductCategoryRequest) error {
-	statement := ``
-
-	if os.Getenv("DB_DRIVER") == "mysql" {
-		statement = `UPDATE inv_product_category SET name = ? WHERE id = ?`
-	}
-	if os.Getenv("DB_DRIVER") == "postgres" {
-		statement = `UPDATE inv_product_category SET name = $1 WHERE id = $2`
-	}
+	statement := `UPDATE inv_product_category SET name = $1 WHERE id = $2`
 
 	err := s.db.QueryRow(statement, request.Name, ProductCategoryID).Err()
 
@@ -108,14 +79,7 @@ func (s *storage) UpdateProductCategory(ProductCategoryID int, request request.U
 }
 
 func (s *storage) DeleteProductCategory(ProductCategoryID int) error {
-	statement := ``
-
-	if os.Getenv("DB_DRIVER") == "mysql" {
-		statement = `DELETE FROM inv_product_category WHERE id = ?`
-	}
-	if os.Getenv("DB_DRIVER") == "postgres" {
-		statement = `DELETE FROM inv_product_category WHERE id = $1`
-	}
+	statement := `DELETE FROM inv_product_category WHERE id = $1`
 
 	err := s.db.QueryRow(statement, ProductCategoryID).Err()
 
