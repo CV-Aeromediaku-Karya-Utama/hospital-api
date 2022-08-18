@@ -27,8 +27,12 @@ type productService struct {
 }
 
 func (p productService) New(request request.NewProductRequest) error {
-	//TODO implement me
-	panic("implement me")
+	err := p.storage.CreateProduct(request)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (p productService) List() ([]request.Product, error) {

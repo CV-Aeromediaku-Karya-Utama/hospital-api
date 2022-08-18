@@ -1,0 +1,5 @@
+BEGIN;
+
+DELETE FROM role WHERE id = 1;
+
+COMMIT;
