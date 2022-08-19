@@ -1,15 +1,14 @@
 package repository
 
 import (
-	"github.com/lib/pq"
 	"inventory-api/pkg/api/request"
 	"log"
 )
 
-func (s *storage) CreateProduct(request request.NewProductRequest) error {
+func (s *storage) CreateProduct(request request.NewProductRequest, categoryID []byte) error {
 	statement := `INSERT INTO inv_product (name, product_desc, product_category_id) VALUES ($1, $2, $3);`
 
-	err := s.db.QueryRow(statement, request.Name, request.ProductDesc, pq.Array(request.ProductCategoryID)).Err()
+	err := s.db.QueryRow(statement, request.Name, request.ProductDesc, categoryID).Err()
 
 	if err != nil {
 		log.Printf("this was the error: %v", err)

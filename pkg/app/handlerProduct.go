@@ -13,7 +13,6 @@ func (s *Server) CreateProduct() gin.HandlerFunc {
 		c.Header("Content-Type", "application/json")
 
 		var data request.NewProductRequest
-
 		err := c.ShouldBindJSON(&data)
 		if err != nil {
 			log.Printf("handler error: %v", err)

@@ -1,6 +1,7 @@
 package api
 
 import (
+	"encoding/json"
 	"inventory-api/pkg/api/request"
 )
 
@@ -15,7 +16,7 @@ type ProductService interface {
 
 // ProductRepository is what lets our service do db operations without knowing anything about the implementation
 type ProductRepository interface {
-	CreateProduct(request request.NewProductRequest) error
+	CreateProduct(request request.NewProductRequest, categoryID []byte) error
 	GetProductByID(id int) (request.Product, error)
 	ListProduct() ([]request.Product, error)
 	UpdateProduct(ProductID int, request request.UpdateProductRequest) error
@@ -27,7 +28,8 @@ type productService struct {
 }
 
 func (p productService) New(request request.NewProductRequest) error {
-	err := p.storage.CreateProduct(request)
+	categoryID, _ := json.Marshal(request.ProductCategoryID)
+	err := p.storage.CreateProduct(request, categoryID)
 	if err != nil {
 		return err
 	}
