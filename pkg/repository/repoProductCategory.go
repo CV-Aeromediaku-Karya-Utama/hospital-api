@@ -28,7 +28,7 @@ func (s *storage) GetProductCategoryByID(id int) (request.ProductCategory, error
 	err := s.db.QueryRow(statement, id).Scan(&item.ID, &item.Name)
 
 	if err == sql.ErrNoRows {
-		return request.ProductCategory{}, fmt.Errorf("unknown value : %d", id)
+		return request.ProductCategory{}, fmt.Errorf("unknown category id : %d", id)
 	}
 
 	if err != nil {

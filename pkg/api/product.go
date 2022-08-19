@@ -1,7 +1,8 @@
 package api
 
 import (
-	"encoding/json"
+	"errors"
+	"fmt"
 	"inventory-api/pkg/api/request"
 )
 
@@ -16,8 +17,9 @@ type ProductService interface {
 
 // ProductRepository is what lets our service do db operations without knowing anything about the implementation
 type ProductRepository interface {
-	CreateProduct(request request.NewProductRequest, categoryID []byte) error
+	CreateProduct(request request.Product) error
 	GetProductByID(id int) (request.Product, error)
+	GetProductCategoryByID(id int) (request.ProductCategory, error)
 	ListProduct() ([]request.Product, error)
 	UpdateProduct(ProductID int, request request.UpdateProductRequest) error
 	DeleteProduct(ProductID int) error
@@ -27,9 +29,26 @@ type productService struct {
 	storage ProductRepository
 }
 
-func (p productService) New(request request.NewProductRequest) error {
-	categoryID, _ := json.Marshal(request.ProductCategoryID)
-	err := p.storage.CreateProduct(request, categoryID)
+func (p productService) New(r request.NewProductRequest) error {
+	var categories []request.ProductCategory
+
+	for i := 0; i < len(r.ProductCategoryID); i++ {
+		id := r.ProductCategoryID[i]
+		item, err := p.storage.GetProductCategoryByID(id)
+		fmt.Println("LOOPING", i, item)
+		if err != nil {
+			return err
+		}
+		categories = append(categories, item)
+	}
+	fmt.Println("CATEGORIES", categories)
+
+	product := new(request.Product)
+	product.Name = r.Name
+	product.ProductDesc = r.ProductDesc
+	product.ProductCategoryID = categories
+
+	err := p.storage.CreateProduct(*product)
 	if err != nil {
 		return err
 	}
@@ -38,23 +57,43 @@ func (p productService) New(request request.NewProductRequest) error {
 }
 
 func (p productService) List() ([]request.Product, error) {
-	//TODO implement me
-	panic("implement me")
+	data, err := p.storage.ListProduct()
+	if err != nil {
+		return nil, err
+	}
+	return data, nil
 }
 
 func (p productService) Update(ProductID int, request request.UpdateProductRequest) error {
-	//TODO implement me
-	panic("implement me")
+	if request.Name == "" {
+		return errors.New("user service - name required")
+	}
+	_, err := p.storage.GetProductByID(ProductID)
+	if err != nil {
+		return err
+	}
+
+	err = p.storage.UpdateProduct(ProductID, request)
+	if err != nil {
+		return errors.New("update failed")
+	}
+	return nil
 }
 
 func (p productService) Delete(ProductID int) error {
-	//TODO implement me
-	panic("implement me")
+	err := p.storage.DeleteProduct(ProductID)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (p productService) Detail(ProductID int) (request.Product, error) {
-	//TODO implement me
-	panic("implement me")
+	item, err := p.storage.GetProductByID(ProductID)
+	if err != nil {
+		return request.Product{}, err
+	}
+	return item, nil
 }
 
 func NewProductService(productRepo ProductRepository) ProductService {
