@@ -2,6 +2,7 @@ package api
 
 import (
 	"errors"
+	"inventory-api/pkg/api/helper"
 	"inventory-api/pkg/api/request"
 )
 
@@ -31,8 +32,9 @@ type productService struct {
 func (p productService) New(r request.NewProductRequest) error {
 	var categories []request.ProductCategory
 
-	for i := 0; i < len(r.ProductCategoryID); i++ {
-		id := r.ProductCategoryID[i]
+	uniqueSlice := helper.UniqueInt(r.ProductCategoryID)
+	for i := 0; i < len(uniqueSlice); i++ {
+		id := uniqueSlice[i]
 		item, err := p.storage.GetProductCategoryByID(id)
 		if err != nil {
 			return err
