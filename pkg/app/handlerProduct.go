@@ -1,6 +1,7 @@
 package app
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"inventory-api/pkg/api/request"
 	"log"
@@ -14,6 +15,7 @@ func (s *Server) CreateProduct() gin.HandlerFunc {
 
 		var data request.NewProductRequest
 		err := c.ShouldBindJSON(&data)
+		fmt.Println("REQUEST ", data)
 		if err != nil {
 			log.Printf("handler error: %v", err)
 			c.JSON(http.StatusBadRequest, nil)

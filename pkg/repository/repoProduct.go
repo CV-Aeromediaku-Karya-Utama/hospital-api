@@ -2,15 +2,18 @@ package repository
 
 import (
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"inventory-api/pkg/api/request"
 	"log"
 )
 
-func (s *storage) CreateProduct(request request.Product) error {
+func (s *storage) CreateProduct(r request.Product, categories []request.ProductCategory) error {
+
 	statement := `INSERT INTO inv_product (name, product_desc, product_category_id) VALUES ($1, $2, $3);`
-	fmt.Println("REPO", request)
-	err := s.db.QueryRow(statement, &request.Name, &request.ProductDesc, request.ProductCategoryID).Err() //pq.Array()
+
+	uye, _ := json.Marshal(categories)
+	err := s.db.QueryRow(statement, r.Name, r.ProductDesc, uye).Err() //pq.Array()
 
 	if err != nil {
 		log.Printf("this was the error: %v", err)

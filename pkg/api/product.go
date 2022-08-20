@@ -2,7 +2,6 @@ package api
 
 import (
 	"errors"
-	"fmt"
 	"inventory-api/pkg/api/request"
 )
 
@@ -17,7 +16,7 @@ type ProductService interface {
 
 // ProductRepository is what lets our service do db operations without knowing anything about the implementation
 type ProductRepository interface {
-	CreateProduct(request request.Product) error
+	CreateProduct(request request.Product, categories []request.ProductCategory) error
 	GetProductByID(id int) (request.Product, error)
 	GetProductCategoryByID(id int) (request.ProductCategory, error)
 	ListProduct() ([]request.Product, error)
@@ -35,20 +34,17 @@ func (p productService) New(r request.NewProductRequest) error {
 	for i := 0; i < len(r.ProductCategoryID); i++ {
 		id := r.ProductCategoryID[i]
 		item, err := p.storage.GetProductCategoryByID(id)
-		fmt.Println("LOOPING", i, item)
 		if err != nil {
 			return err
 		}
 		categories = append(categories, item)
 	}
-	fmt.Println("CATEGORIES", categories)
 
 	product := new(request.Product)
 	product.Name = r.Name
 	product.ProductDesc = r.ProductDesc
-	product.ProductCategoryID = categories
 
-	err := p.storage.CreateProduct(*product)
+	err := p.storage.CreateProduct(*product, categories)
 	if err != nil {
 		return err
 	}
