@@ -1,10 +1,13 @@
 package request
 
 type Product struct {
-	ID                int               `json:"id"`
-	Name              string            `json:"name"`
-	ProductDesc       string            `json:"product_desc"`
-	ProductCategoryID []ProductCategory `json:"product_category"`
+	ID                int    `json:"id"`
+	Name              string `json:"name"`
+	ProductDesc       string `json:"product_desc"`
+	ProductCategoryID struct {
+		ID   int    `json:"id"`
+		Name string `json:"name"`
+	} `json:"product_category"`
 }
 
 type NewProductRequest struct {

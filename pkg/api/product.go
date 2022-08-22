@@ -18,7 +18,7 @@ type ProductService interface {
 // ProductRepository is what lets our service do db operations without knowing anything about the implementation
 type ProductRepository interface {
 	CreateProduct(request request.Product, categories []request.ProductCategory) error
-	GetProductByID(id int) (request.Product, error)
+	GetProductByID(ProductID int) (request.Product, error)
 	GetProductCategoryByID(id int) (request.ProductCategory, error)
 	ListProduct() ([]request.Product, error)
 	UpdateProduct(ProductID int, request request.UpdateProductRequest) error

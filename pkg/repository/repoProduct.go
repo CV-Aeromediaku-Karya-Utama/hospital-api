@@ -1,12 +1,27 @@
 package repository
 
 import (
-	"database/sql"
+	"database/sql/driver"
 	"encoding/json"
-	"fmt"
+	"errors"
 	"inventory-api/pkg/api/request"
 	"log"
 )
+
+type Product request.Product
+
+func (a Product) Value() (driver.Value, error) {
+	return json.Marshal(a)
+}
+
+func (a *Product) Scan(value interface{}) error {
+	b, ok := value.([]byte)
+	if !ok {
+		return errors.New("type assertion to []byte failed")
+	}
+
+	return json.Unmarshal(b, &a)
+}
 
 func (s *storage) CreateProduct(r request.Product, categories []request.ProductCategory) error {
 
@@ -23,23 +38,16 @@ func (s *storage) CreateProduct(r request.Product, categories []request.ProductC
 	return nil
 }
 
-func (s *storage) GetProductByID(id int) (request.Product, error) {
-	var item request.Product
-	//var test []int
-	statement := `SELECT * FROM inv_product WHERE id = $1`
-
-	err := s.db.QueryRow(statement, id).Scan(&item.ID, &item.Name, &item.ProductDesc, item.ProductCategoryID)
-
-	if err == sql.ErrNoRows {
-		return request.Product{}, fmt.Errorf("unknown value : %d", id)
-	}
-
+func (s *storage) GetProductByID(ProductID int) (request.Product, error) {
+	//var data *request.Product
+	//var categories []request.ProductCategory
+	item := new(Product)
+	err := s.db.QueryRow(`SELECT id,name, product_desc FROM inv_product WHERE id=$1`, ProductID).Scan(
+		&item.ID, &item.Name, &item.ProductDesc)
 	if err != nil {
-		log.Printf("this was the error: %v", err.Error())
-		return request.Product{}, err
+		return request.Product{}, errors.New("JUACOK")
 	}
-
-	return item, nil
+	return request.Product(*item), nil
 }
 
 func (s *storage) ListProduct() ([]request.Product, error) {
