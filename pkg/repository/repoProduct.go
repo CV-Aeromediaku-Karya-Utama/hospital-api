@@ -1,27 +1,10 @@
 package repository
 
 import (
-	"database/sql/driver"
 	"encoding/json"
-	"errors"
 	"inventory-api/pkg/api/request"
 	"log"
 )
-
-type Product request.Product
-
-func (a Product) Value() (driver.Value, error) {
-	return json.Marshal(a)
-}
-
-func (a *Product) Scan(value interface{}) error {
-	b, ok := value.([]byte)
-	if !ok {
-		return errors.New("type assertion to []byte failed")
-	}
-
-	return json.Unmarshal(b, &a)
-}
 
 func (s *storage) CreateProduct(r request.Product, categories []request.ProductCategory) error {
 
@@ -39,15 +22,16 @@ func (s *storage) CreateProduct(r request.Product, categories []request.ProductC
 }
 
 func (s *storage) GetProductByID(ProductID int) (request.Product, error) {
-	//var data *request.Product
-	//var categories []request.ProductCategory
-	item := new(Product)
-	err := s.db.QueryRow(`SELECT id,name, product_desc FROM inv_product WHERE id=$1`, ProductID).Scan(
-		&item.ID, &item.Name, &item.ProductDesc)
+	var jsonData []byte
+	var item request.Product
+
+	err := s.db.QueryRow(`SELECT id,name, product_desc, product_category_id FROM inv_product WHERE id=$1`, ProductID).Scan(
+		&item.ID, &item.Name, &item.ProductDesc, &jsonData)
+	_ = json.Unmarshal(jsonData, &item.ProductCategoryID)
 	if err != nil {
-		return request.Product{}, errors.New("JUACOK")
+		return request.Product{}, err
 	}
-	return request.Product(*item), nil
+	return item, nil
 }
 
 func (s *storage) ListProduct() ([]request.Product, error) {
@@ -63,13 +47,15 @@ func (s *storage) ListProduct() ([]request.Product, error) {
 
 	// slice to hold data from returned rows.
 	var data []request.Product
+	var jsonData []byte
 
 	// Loop through rows, using Scan to assign column data to struct fields.
 	for rows.Next() {
 		var item request.Product
-		if err := rows.Scan(&item.ID, &item.Name); err != nil {
+		if err := rows.Scan(&item.ID, &item.Name, &item.ProductDesc, &jsonData); err != nil {
 			return data, err
 		}
+		_ = json.Unmarshal(jsonData, &item.ProductCategoryID)
 		data = append(data, item)
 	}
 
