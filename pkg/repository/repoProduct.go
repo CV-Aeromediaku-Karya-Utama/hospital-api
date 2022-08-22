@@ -1,9 +1,7 @@
 package repository
 
 import (
-	"database/sql"
 	"encoding/json"
-	"fmt"
 	"inventory-api/pkg/api/request"
 	"log"
 )
@@ -23,22 +21,16 @@ func (s *storage) CreateProduct(r request.Product, categories []request.ProductC
 	return nil
 }
 
-func (s *storage) GetProductByID(id int) (request.Product, error) {
+func (s *storage) GetProductByID(ProductID int) (request.Product, error) {
+	var jsonData []byte
 	var item request.Product
-	//var test []int
-	statement := `SELECT * FROM inv_product WHERE id = $1`
 
-	err := s.db.QueryRow(statement, id).Scan(&item.ID, &item.Name, &item.ProductDesc, item.ProductCategoryID)
-
-	if err == sql.ErrNoRows {
-		return request.Product{}, fmt.Errorf("unknown value : %d", id)
-	}
-
+	err := s.db.QueryRow(`SELECT id,name, product_desc, product_category_id FROM inv_product WHERE id=$1`, ProductID).Scan(
+		&item.ID, &item.Name, &item.ProductDesc, &jsonData)
+	_ = json.Unmarshal(jsonData, &item.ProductCategoryID)
 	if err != nil {
-		log.Printf("this was the error: %v", err.Error())
 		return request.Product{}, err
 	}
-
 	return item, nil
 }
 
@@ -55,13 +47,15 @@ func (s *storage) ListProduct() ([]request.Product, error) {
 
 	// slice to hold data from returned rows.
 	var data []request.Product
+	var jsonData []byte
 
 	// Loop through rows, using Scan to assign column data to struct fields.
 	for rows.Next() {
 		var item request.Product
-		if err := rows.Scan(&item.ID, &item.Name); err != nil {
+		if err := rows.Scan(&item.ID, &item.Name, &item.ProductDesc, &jsonData); err != nil {
 			return data, err
 		}
+		_ = json.Unmarshal(jsonData, &item.ProductCategoryID)
 		data = append(data, item)
 	}
 

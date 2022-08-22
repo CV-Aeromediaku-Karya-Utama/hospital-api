@@ -48,6 +48,7 @@ func (s *Server) productDetail() gin.HandlerFunc {
 		}
 
 		data, err := s.productService.Detail(id)
+		log.Print("HANDLER ", data)
 		if err != nil {
 			log.Printf("service error: %v", err)
 			c.JSON(http.StatusInternalServerError, err)
