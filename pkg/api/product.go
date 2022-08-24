@@ -47,11 +47,18 @@ func (p productService) New(r request.NewProductRequest) error {
 		categories = append(categories, item)
 	}
 
+	//upload
+	uploadUrl, err := helper.ImageUploadHelper(r.ProductPhotoUrl)
+	if err != nil {
+		return err
+	}
+
 	product := new(request.Product)
 	product.Name = r.Name
 	product.ProductDesc = r.ProductDesc
+	product.ProductPhotoUrl = uploadUrl
 
-	err := p.storage.CreateProduct(*product, categories)
+	err = p.storage.CreateProduct(*product, categories)
 	if err != nil {
 		return err
 	}

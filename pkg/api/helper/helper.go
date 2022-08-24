@@ -1,6 +1,12 @@
 package helper
 
-import "encoding/json"
+import (
+	"context"
+	"github.com/cloudinary/cloudinary-go/v2"
+	"github.com/cloudinary/cloudinary-go/v2/api/uploader"
+	"os"
+	"time"
+)
 
 func UniqueInt(intSlice []int) []int {
 	keys := make(map[int]bool)
@@ -14,16 +20,21 @@ func UniqueInt(intSlice []int) []int {
 	return list
 }
 
-func ParseJSONToModel(src interface{}, dest interface{}) error {
-	var data []byte
+func ImageUploadHelper(input interface{}) (string, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
 
-	if b, ok := src.([]byte); ok {
-		data = b
-	} else if s, ok := src.(string); ok {
-		data = []byte(s)
-	} else if src == nil {
-		return nil
+	//create cloudinary instance
+	cld, err := cloudinary.NewFromParams(os.Getenv("CLOUDINARY_CLOUD_NAME"), os.Getenv("CLOUDINARY_API_KEY"), os.Getenv("CLOUDINARY_API_SECRET"))
+	if err != nil {
+		return "", err
 	}
 
-	return json.Unmarshal(data, dest)
+	//Upload File
+	uploadParam, err := cld.Upload.Upload(ctx, input, uploader.UploadParams{Folder: os.Getenv("CLOUDINARY_UPLOAD_FOLDER")})
+	if err != nil {
+		return "", err
+	}
+
+	return uploadParam.SecureURL, nil
 }

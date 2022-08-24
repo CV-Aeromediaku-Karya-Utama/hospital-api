@@ -8,10 +8,11 @@ import (
 
 func (s *storage) CreateProduct(r request.Product, categories []request.ProductCategory) error {
 
-	statement := `INSERT INTO inv_product (name, product_desc, product_category_id) VALUES ($1, $2, $3);`
+	statement := `INSERT INTO inv_product (name, product_desc,product_photo, product_category_id) VALUES ($1, $2, $3, $4);`
 
+	log.Print("REPO :", r)
 	uye, _ := json.Marshal(categories)
-	err := s.db.QueryRow(statement, r.Name, r.ProductDesc, uye).Err() //pq.Array()
+	err := s.db.QueryRow(statement, r.Name, r.ProductDesc, r.ProductPhotoUrl, uye).Err() //pq.Array()
 
 	if err != nil {
 		log.Printf("this was the error: %v", err)
@@ -25,8 +26,8 @@ func (s *storage) GetProductByID(ProductID int) (request.Product, error) {
 	var jsonData []byte
 	var item request.Product
 
-	err := s.db.QueryRow(`SELECT id,name, product_desc, product_category_id FROM inv_product WHERE id=$1`, ProductID).Scan(
-		&item.ID, &item.Name, &item.ProductDesc, &jsonData)
+	err := s.db.QueryRow(`SELECT id,name, product_desc,product_photo, product_category_id FROM inv_product WHERE id=$1`, ProductID).Scan(
+		&item.ID, &item.Name, &item.ProductDesc, &item.ProductPhotoUrl, &jsonData)
 	_ = json.Unmarshal(jsonData, &item.ProductCategoryID)
 	if err != nil {
 		return request.Product{}, err
@@ -52,7 +53,7 @@ func (s *storage) GetProductByCategory(Category string) ([]request.Product, erro
 	// Loop through rows, using Scan to assign column data to struct fields.
 	for rows.Next() {
 		var item request.Product
-		if err := rows.Scan(&item.ID, &item.Name, &item.ProductDesc, &jsonData); err != nil {
+		if err := rows.Scan(&item.ID, &item.Name, &item.ProductDesc, &item.ProductPhotoUrl, &jsonData); err != nil {
 			return data, err
 		}
 		_ = json.Unmarshal(jsonData, &item.ProductCategoryID)
@@ -80,7 +81,7 @@ func (s *storage) ListProduct() ([]request.Product, error) {
 	// Loop through rows, using Scan to assign column data to struct fields.
 	for rows.Next() {
 		var item request.Product
-		if err := rows.Scan(&item.ID, &item.Name, &item.ProductDesc, &jsonData); err != nil {
+		if err := rows.Scan(&item.ID, &item.Name, &item.ProductDesc, &item.ProductPhotoUrl, &jsonData); err != nil {
 			return data, err
 		}
 		_ = json.Unmarshal(jsonData, &item.ProductCategoryID)
