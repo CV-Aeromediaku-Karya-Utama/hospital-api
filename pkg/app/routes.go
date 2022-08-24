@@ -55,9 +55,11 @@ func (s *Server) Routes() *gin.Engine {
 		{
 			//role.Use(middleware.JwtTokenCheck)
 			product.GET("/list", s.ListProduct())
+			product.GET("/list_by_category/:categoryID", s.ListProductByCategory())
 			product.GET("/detail/:id", s.productDetail())
 			product.POST("/create", s.CreateProduct())
 			product.PUT("/update/:id", s.UpdateProduct())
+			product.PUT("/update_category/:productID", s.UpdateCategory())
 			product.DELETE("/delete/:id", s.DeleteProduct())
 		}
 	}

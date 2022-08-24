@@ -34,6 +34,35 @@ func (s *storage) GetProductByID(ProductID int) (request.Product, error) {
 	return item, nil
 }
 
+func (s *storage) GetProductByCategory(Category string) ([]request.Product, error) {
+	statement := `SELECT * FROM inv_product 
+                              WHERE product_category_id::text LIKE ('%'||$1||'%');`
+
+	rows, err := s.db.Query(statement, Category)
+
+	if err != nil {
+		log.Printf("this was the error: %v", err)
+		return nil, err
+	}
+	defer rows.Close()
+
+	// slice to hold data from returned rows.
+	var data []request.Product
+	var jsonData []byte
+
+	// Loop through rows, using Scan to assign column data to struct fields.
+	for rows.Next() {
+		var item request.Product
+		if err := rows.Scan(&item.ID, &item.Name, &item.ProductDesc, &jsonData); err != nil {
+			return data, err
+		}
+		_ = json.Unmarshal(jsonData, &item.ProductCategoryID)
+		data = append(data, item)
+	}
+
+	return data, nil
+}
+
 func (s *storage) ListProduct() ([]request.Product, error) {
 	statement := `SELECT * FROM inv_product`
 
@@ -73,6 +102,11 @@ func (s *storage) UpdateProduct(ProductID int, request request.UpdateProductRequ
 	}
 
 	return err
+}
+
+func (s *storage) UpdateCategoryByProduct(CategoryID []int, request request.UpdateProductRequest) error {
+	//TODO implement me
+	panic("implement me")
 }
 
 func (s *storage) DeleteProduct(ProductID int) error {

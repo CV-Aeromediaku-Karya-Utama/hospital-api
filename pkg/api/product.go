@@ -1,16 +1,20 @@
 package api
 
 import (
+	"encoding/json"
 	"errors"
 	"inventory-api/pkg/api/helper"
 	"inventory-api/pkg/api/request"
+	"log"
 )
 
 // ProductService contains the methods of the user service
 type ProductService interface {
 	New(request request.NewProductRequest) error
 	List() ([]request.Product, error)
+	ListByCategory(CategoryID int) ([]request.Product, error)
 	Update(ProductID int, request request.UpdateProductRequest) error
+	UpdateCategory(ProductID int, CategoryID request.UpdateCategoryProductRequest) error
 	Delete(ProductID int) error
 	Detail(ProductID int) (request.Product, error)
 }
@@ -19,9 +23,11 @@ type ProductService interface {
 type ProductRepository interface {
 	CreateProduct(request request.Product, categories []request.ProductCategory) error
 	GetProductByID(ProductID int) (request.Product, error)
+	GetProductByCategory(Category string) ([]request.Product, error)
 	GetProductCategoryByID(id int) (request.ProductCategory, error)
 	ListProduct() ([]request.Product, error)
 	UpdateProduct(ProductID int, request request.UpdateProductRequest) error
+	UpdateCategoryByProduct(CategoryID []int, request request.UpdateProductRequest) error
 	DeleteProduct(ProductID int) error
 }
 
@@ -62,6 +68,22 @@ func (p productService) List() ([]request.Product, error) {
 	return data, nil
 }
 
+func (p productService) ListByCategory(CategoryID int) ([]request.Product, error) {
+	category, err := p.storage.GetProductCategoryByID(CategoryID)
+	if err != nil {
+		return nil, err
+	}
+
+	// Convert struct to string
+	b, err := json.Marshal(category)
+	data, err := p.storage.GetProductByCategory(string(b))
+	if err != nil {
+		return nil, err
+	}
+
+	return data, nil
+}
+
 func (p productService) Update(ProductID int, request request.UpdateProductRequest) error {
 	if request.Name == "" {
 		return errors.New("user service - name required")
@@ -75,6 +97,12 @@ func (p productService) Update(ProductID int, request request.UpdateProductReque
 	if err != nil {
 		return errors.New("update failed")
 	}
+	return nil
+}
+
+func (p productService) UpdateCategory(ProductID int, CategoryID request.UpdateCategoryProductRequest) error {
+	//TODO implement me
+	log.Println("implement me")
 	return nil
 }
 

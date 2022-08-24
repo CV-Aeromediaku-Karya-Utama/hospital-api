@@ -73,6 +73,27 @@ func (s *Server) ListProduct() gin.HandlerFunc {
 	}
 }
 
+func (s *Server) ListProductByCategory() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.Header("Content-Type", "application/json")
+		categoryID, err := strconv.Atoi(c.Param("categoryID"))
+		if err != nil {
+			log.Printf("handler error: %v", err)
+			c.JSON(http.StatusBadRequest, err)
+			return
+		}
+
+		data, err := s.productService.ListByCategory(categoryID)
+		if err != nil {
+			log.Printf("service error: %v", err)
+			c.JSON(http.StatusInternalServerError, err)
+			return
+		}
+
+		c.JSON(http.StatusOK, data)
+	}
+}
+
 func (s *Server) UpdateProduct() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.Header("Content-Type", "application/json")
@@ -101,6 +122,40 @@ func (s *Server) UpdateProduct() gin.HandlerFunc {
 		response := map[string]string{
 			"status": "success",
 			"data":   "productCategory updated",
+		}
+
+		c.JSON(http.StatusOK, response)
+	}
+}
+
+func (s *Server) UpdateCategory() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.Header("Content-Type", "application/json")
+
+		var category request.UpdateCategoryProductRequest
+		err := c.ShouldBindJSON(&category)
+		if err != nil {
+			log.Printf("handler error: %v", err)
+			c.JSON(http.StatusBadRequest, err)
+			return
+		}
+		productID, err := strconv.Atoi(c.Param("productID"))
+		if err != nil {
+			log.Printf("handler error: %v", err)
+			c.JSON(http.StatusBadRequest, err)
+			return
+		}
+		log.Println("ProductID :", productID, " categoryID :", category)
+		err = s.productService.UpdateCategory(productID, category)
+		if err != nil {
+			log.Printf("service error: %v", err)
+			c.JSON(http.StatusInternalServerError, err)
+			return
+		}
+
+		response := map[string]string{
+			"status": "success",
+			"data":   "category product updated",
 		}
 
 		c.JSON(http.StatusOK, response)

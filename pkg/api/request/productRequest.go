@@ -18,3 +18,7 @@ type UpdateProductRequest struct {
 	ProductDesc       string `json:"product_desc"`
 	ProductCategoryID []int  `json:"product_category_id"`
 }
+
+type UpdateCategoryProductRequest struct {
+	ProductCategoryID []int `json:"product_category_id"`
+}
