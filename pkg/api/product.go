@@ -5,7 +5,6 @@ import (
 	"errors"
 	"inventory-api/pkg/api/helper"
 	"inventory-api/pkg/api/request"
-	"log"
 )
 
 // ProductService contains the methods of the user service
@@ -14,7 +13,7 @@ type ProductService interface {
 	List() ([]request.Product, error)
 	ListByCategory(CategoryID int) ([]request.Product, error)
 	Update(ProductID int, request request.UpdateProductRequest) error
-	UpdateCategory(ProductID int, CategoryID request.UpdateCategoryProductRequest) error
+	UpdateCategory(ProductID int, CategoryID request.UpdateProductRequest) error
 	Delete(ProductID int) error
 	Detail(ProductID int) (request.Product, error)
 }
@@ -27,7 +26,7 @@ type ProductRepository interface {
 	GetProductCategoryByID(id int) (request.ProductCategory, error)
 	ListProduct() ([]request.Product, error)
 	UpdateProduct(ProductID int, request request.UpdateProductRequest) error
-	UpdateCategoryByProduct(CategoryID []int, request request.UpdateProductRequest) error
+	UpdateCategoryByProductID(ProductID int, CategoryID []request.ProductCategory) error
 	DeleteProduct(ProductID int) error
 }
 
@@ -76,7 +75,8 @@ func (p productService) ListByCategory(CategoryID int) ([]request.Product, error
 
 	// Convert struct to string
 	b, err := json.Marshal(category)
-	data, err := p.storage.GetProductByCategory(string(b))
+	c := "[" + string(b) + "]"
+	data, err := p.storage.GetProductByCategory(c)
 	if err != nil {
 		return nil, err
 	}
@@ -86,23 +86,36 @@ func (p productService) ListByCategory(CategoryID int) ([]request.Product, error
 
 func (p productService) Update(ProductID int, request request.UpdateProductRequest) error {
 	if request.Name == "" {
-		return errors.New("user service - name required")
+		return errors.New("product service - name required")
 	}
-	_, err := p.storage.GetProductByID(ProductID)
-	if err != nil {
-		return err
+	if request.ProductDesc == "" {
+		return errors.New("product service - product desc required")
 	}
 
-	err = p.storage.UpdateProduct(ProductID, request)
+	err := p.storage.UpdateProduct(ProductID, request)
 	if err != nil {
 		return errors.New("update failed")
 	}
 	return nil
 }
 
-func (p productService) UpdateCategory(ProductID int, CategoryID request.UpdateCategoryProductRequest) error {
-	//TODO implement me
-	log.Println("implement me")
+func (p productService) UpdateCategory(ProductID int, CategoryID request.UpdateProductRequest) error {
+	var categories []request.ProductCategory
+
+	uniqueSlice := helper.UniqueInt(CategoryID.ProductCategoryID)
+	for i := 0; i < len(uniqueSlice); i++ {
+		id := uniqueSlice[i]
+		item, err := p.storage.GetProductCategoryByID(id)
+		if err != nil {
+			return err
+		}
+		categories = append(categories, item)
+	}
+
+	err := p.storage.UpdateCategoryByProductID(ProductID, categories)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 

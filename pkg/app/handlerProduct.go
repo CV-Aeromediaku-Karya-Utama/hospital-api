@@ -132,7 +132,7 @@ func (s *Server) UpdateCategory() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.Header("Content-Type", "application/json")
 
-		var category request.UpdateCategoryProductRequest
+		var category request.UpdateProductRequest
 		err := c.ShouldBindJSON(&category)
 		if err != nil {
 			log.Printf("handler error: %v", err)

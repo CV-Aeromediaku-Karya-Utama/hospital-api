@@ -35,8 +35,7 @@ func (s *storage) GetProductByID(ProductID int) (request.Product, error) {
 }
 
 func (s *storage) GetProductByCategory(Category string) ([]request.Product, error) {
-	statement := `SELECT * FROM inv_product 
-                              WHERE product_category_id::text LIKE ('%'||$1||'%');`
+	statement := `SELECT * FROM inv_product WHERE product_category_id @> $1;`
 
 	rows, err := s.db.Query(statement, Category)
 
@@ -92,9 +91,9 @@ func (s *storage) ListProduct() ([]request.Product, error) {
 }
 
 func (s *storage) UpdateProduct(ProductID int, request request.UpdateProductRequest) error {
-	statement := `UPDATE inv_product SET name = $1 WHERE id = $2`
+	statement := `UPDATE inv_product SET name = $1, product_desc = $2 WHERE id = $3`
 
-	err := s.db.QueryRow(statement, request.Name, ProductID).Err()
+	err := s.db.QueryRow(statement, request.Name, request.ProductDesc, ProductID).Err()
 
 	if err != nil {
 		log.Printf("this was the error: %v", err)
@@ -104,9 +103,18 @@ func (s *storage) UpdateProduct(ProductID int, request request.UpdateProductRequ
 	return err
 }
 
-func (s *storage) UpdateCategoryByProduct(CategoryID []int, request request.UpdateProductRequest) error {
-	//TODO implement me
-	panic("implement me")
+func (s *storage) UpdateCategoryByProductID(ProductID int, CategoryID []request.ProductCategory) error {
+	statement := `UPDATE inv_product SET product_category_id = $1 WHERE id = $2`
+
+	uye, _ := json.Marshal(CategoryID)
+	err := s.db.QueryRow(statement, uye, ProductID).Err()
+
+	if err != nil {
+		log.Printf("this was the error: %v", err)
+		return err
+	}
+
+	return err
 }
 
 func (s *storage) DeleteProduct(ProductID int) error {
