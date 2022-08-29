@@ -24,7 +24,7 @@ func (s *Server) Routes() *gin.Engine {
 	v1 := router.Group("/v1/api")
 	{
 		v1.GET("/status", s.ApiStatus())
-		v1.GET("/login", s.Login())
+		v1.POST("/login", s.Login())
 		role := v1.Group("/role")
 		{
 			//role.Use(middleware.JwtTokenCheck)
