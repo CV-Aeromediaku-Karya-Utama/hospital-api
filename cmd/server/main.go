@@ -10,7 +10,6 @@ import (
 	"inventory-api/pkg/app"
 	"inventory-api/pkg/repository"
 
-	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 )
@@ -43,7 +42,7 @@ func run() error {
 
 	// create router dependency
 	router := gin.Default()
-	router.Use(cors.Default())
+	//router.Use(cors.Default())
 
 	// create services
 	roleService := api.NewRoleService(storage)

@@ -2,6 +2,7 @@ package app
 
 import (
 	"github.com/gin-gonic/gin"
+	"inventory-api/pkg/app/middleware"
 	"net/http"
 )
 
@@ -20,6 +21,7 @@ func (s *Server) ApiStatus() gin.HandlerFunc {
 
 func (s *Server) Routes() *gin.Engine {
 	router := s.router
+	router.Use(middleware.CORS())
 
 	v1 := router.Group("/v1/api")
 	{
