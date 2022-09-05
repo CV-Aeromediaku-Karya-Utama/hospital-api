@@ -12,3 +12,7 @@ type NewProductCategoryRequest struct {
 type UpdateProductCategoryRequest struct {
 	Name string `json:"name"`
 }
+
+type BatchDeleteProductCategoryRequest struct {
+	ID []string `json:"id"`
+}

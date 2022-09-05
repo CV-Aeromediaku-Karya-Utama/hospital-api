@@ -12,6 +12,7 @@ type ProductCategoryService interface {
 	List() ([]request.ProductCategory, error)
 	Update(ProductCategoryID int, request request.UpdateProductCategoryRequest) error
 	Delete(ProductCategoryID int) error
+	BatchDelete(request request.BatchDeleteProductCategoryRequest) error
 	Detail(ProductCategoryID int) (request.ProductCategory, error)
 }
 
@@ -22,6 +23,7 @@ type ProductCategoryRepository interface {
 	ListProductCategory() ([]request.ProductCategory, error)
 	UpdateProductCategory(ProductCategoryID int, request request.UpdateProductCategoryRequest) error
 	DeleteProductCategory(ProductCategoryID int) error
+	BatchDeleteProductCategory(request request.BatchDeleteProductCategoryRequest) error
 }
 
 type productCategoryService struct {
@@ -67,6 +69,14 @@ func (p productCategoryService) Update(ProductCategoryID int, request request.Up
 
 func (p productCategoryService) Delete(ProductCategoryID int) error {
 	err := p.storage.DeleteProductCategory(ProductCategoryID)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p productCategoryService) BatchDelete(request request.BatchDeleteProductCategoryRequest) error {
+	err := p.storage.BatchDeleteProductCategory(request)
 	if err != nil {
 		return err
 	}

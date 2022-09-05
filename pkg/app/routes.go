@@ -52,11 +52,12 @@ func (s *Server) Routes() *gin.Engine {
 			productCategory.POST("/create", s.CreateProductCategory())
 			productCategory.PUT("/update/:id", s.UpdateProductCategory())
 			productCategory.DELETE("/delete/:id", s.DeleteProductCategory())
+			productCategory.POST("/batch_delete", s.BatchDeleteProductCategory())
 		}
 		product := v1.Group("/product")
 		{
 			//role.Use(middleware.JwtTokenCheck)
-			product.GET("/list", s.ListProduct())
+			product.GET("/list/:page/:per_page", s.ListProduct())
 			product.GET("/list_by_category/:categoryID", s.ListProductByCategory())
 			product.GET("/detail/:id", s.productDetail())
 			product.POST("/create", s.CreateProduct())

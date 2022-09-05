@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"inventory-api/pkg/api/request"
 	"log"
+	"strings"
 )
 
 func (s *storage) CreateProductCategory(request request.NewProductCategoryRequest) error {
@@ -82,6 +83,21 @@ func (s *storage) DeleteProductCategory(ProductCategoryID int) error {
 	statement := `DELETE FROM inv_product_category WHERE id = $1`
 
 	err := s.db.QueryRow(statement, ProductCategoryID).Err()
+
+	if err != nil {
+		log.Printf("this was the error: %v", err)
+		return err
+	}
+
+	return nil
+}
+
+func (s *storage) BatchDeleteProductCategory(request request.BatchDeleteProductCategoryRequest) error {
+	statement := `DELETE FROM inv_product_category WHERE id = ANY($1::int[])`
+
+	param := "{" + strings.Join(request.ID, ",") + "}"
+
+	err := s.db.QueryRow(statement, param).Err()
 
 	if err != nil {
 		log.Printf("this was the error: %v", err)

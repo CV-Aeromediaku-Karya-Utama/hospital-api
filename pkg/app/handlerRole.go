@@ -61,7 +61,20 @@ func (s *Server) roleDetail() gin.HandlerFunc {
 func (s *Server) ListRole() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.Header("Content-Type", "application/json")
-		roles, err := s.roleService.List()
+		pageStr := c.DefaultQuery("page", "1")
+		page, err := strconv.Atoi(pageStr)
+		if err != nil {
+			c.AbortWithStatus(http.StatusBadRequest)
+			return
+		}
+		perPageStr := c.DefaultQuery("per_page", "10")
+		perPage, err := strconv.Atoi(perPageStr)
+		if err != nil {
+			c.AbortWithStatus(http.StatusBadRequest)
+			return
+		}
+
+		roles, err := s.roleService.List(page, perPage)
 		if err != nil {
 			log.Printf("service error: %v", err)
 			c.JSON(http.StatusInternalServerError, err)

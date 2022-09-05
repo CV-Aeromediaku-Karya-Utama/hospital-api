@@ -9,7 +9,7 @@ import (
 // RoleService contains the methods of the user service
 type RoleService interface {
 	New(r request.NewRoleRequest) error
-	List() ([]request.Role, error)
+	List(page int, perPage int) (request.Roles, error)
 	Update(RoleID int, role request.UpdateRoleRequest) (request.UpdateRoleRequest, error)
 	Delete(RoleID int) error
 	Detail(RoleID int) (request.Role, error)
@@ -19,7 +19,7 @@ type RoleService interface {
 type RoleRepository interface {
 	CreateRole(request.NewRoleRequest) error
 	GetRoleById(RoleID int) (request.Role, error)
-	ListRole() ([]request.Role, error)
+	ListRole(page int, perPage int) (request.Roles, error)
 	UpdateRole(RoleID int, role request.UpdateRoleRequest) (request.UpdateRoleRequest, error)
 	DeleteRole(RoleID int) error
 }
@@ -63,12 +63,12 @@ func (s *roleService) Detail(RoleID int) (request.Role, error) {
 	return item, nil
 }
 
-func (s *roleService) List() ([]request.Role, error) {
-	role, err := s.storage.ListRole()
+func (s *roleService) List(page int, perPage int) (request.Roles, error) {
+	roles, err := s.storage.ListRole(page, perPage)
 	if err != nil {
-		return nil, err
+		return request.Roles{}, err
 	}
-	return role, nil
+	return roles, nil
 }
 
 func (s *roleService) New(r request.NewRoleRequest) error {

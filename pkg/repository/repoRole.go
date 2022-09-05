@@ -20,30 +20,41 @@ func (s *storage) CreateRole(r request.NewRoleRequest) error {
 	return nil
 }
 
-func (s *storage) ListRole() ([]request.Role, error) {
-	statement := `SELECT * FROM role`
+func (s *storage) ListRole(page int, perPage int) (request.Roles, error) {
+	offset := (page - 1) * perPage
 
-	rows, err := s.db.Query(statement)
+	statement := `SELECT id, "name" FROM role ORDER BY id LIMIT $1 OFFSET $2`
+	rows, err := s.db.Query(statement, perPage, offset)
 
 	if err != nil {
 		log.Printf("this was the error: %v", err)
-		return nil, err
+		return request.Roles{}, err
 	}
 	defer rows.Close()
 
-	// slice to hold data from returned rows.
 	var roles []request.Role
-
-	// Loop through rows, using Scan to assign column data to struct fields.
+	var total int
 	for rows.Next() {
 		var role request.Role
+		total += 1
 		if err := rows.Scan(&role.ID, &role.Name); err != nil {
-			return roles, err
+			return request.Roles{}, err
 		}
 		roles = append(roles, role)
 	}
 
-	return roles, nil
+	pagination := request.PaginationRequest{
+		Page:    page,
+		PerPage: perPage,
+		Total:   total,
+	}
+
+	res := request.Roles{
+		Role:       roles,
+		Pagination: pagination,
+	}
+
+	return res, nil
 }
 
 func (s *storage) GetRoleById(roleID int) (request.Role, error) {

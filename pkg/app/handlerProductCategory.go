@@ -126,3 +126,26 @@ func (s *Server) DeleteProductCategory() gin.HandlerFunc {
 		c.JSON(http.StatusOK, nil)
 	}
 }
+
+func (s *Server) BatchDeleteProductCategory() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.Header("Content-Type", "application/json")
+
+		var Data request.BatchDeleteProductCategoryRequest
+		err := c.ShouldBindJSON(&Data)
+		if err != nil {
+			log.Printf("handler error: %v", err)
+			c.JSON(http.StatusBadRequest, err)
+			return
+		}
+
+		err = s.productCategoryService.BatchDelete(Data)
+		if err != nil {
+			log.Printf("service error: %v", err)
+			c.JSON(http.StatusInternalServerError, err)
+			return
+		}
+
+		c.JSON(http.StatusOK, nil)
+	}
+}
