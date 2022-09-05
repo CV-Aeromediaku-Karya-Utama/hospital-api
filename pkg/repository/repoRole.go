@@ -23,7 +23,7 @@ func (s *storage) CreateRole(r request.NewRoleRequest) error {
 func (s *storage) ListRole(page int, perPage int) (request.Roles, error) {
 	offset := (page - 1) * perPage
 
-	statement := `SELECT id, "name" FROM role ORDER BY id LIMIT $1 OFFSET $2`
+	statement := `SELECT id, "name", count(*) OVER() AS total_count FROM role ORDER BY id LIMIT $1 OFFSET $2`
 	rows, err := s.db.Query(statement, perPage, offset)
 
 	if err != nil {
@@ -36,8 +36,7 @@ func (s *storage) ListRole(page int, perPage int) (request.Roles, error) {
 	var total int
 	for rows.Next() {
 		var role request.Role
-		total += 1
-		if err := rows.Scan(&role.ID, &role.Name); err != nil {
+		if err := rows.Scan(&role.ID, &role.Name, &total); err != nil {
 			return request.Roles{}, err
 		}
 		roles = append(roles, role)
