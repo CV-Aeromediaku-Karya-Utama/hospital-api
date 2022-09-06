@@ -4,6 +4,8 @@ import (
 	"context"
 	"github.com/cloudinary/cloudinary-go/v2"
 	"github.com/cloudinary/cloudinary-go/v2/api/uploader"
+	"github.com/gin-gonic/gin"
+	"net/http"
 	"os"
 	"time"
 )
@@ -37,4 +39,24 @@ func ImageUploadHelper(input interface{}) (string, error) {
 	}
 
 	return uploadParam.SecureURL, nil
+}
+
+func SuccessResponse(message any) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		response := map[string]any{
+			"status": "success",
+			"data":   message,
+		}
+		c.JSON(http.StatusOK, response)
+	}
+}
+
+func ErrorResponse(message any) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		response := map[string]any{
+			"status": "failed",
+			"data":   message,
+		}
+		c.JSON(http.StatusBadRequest, response)
+	}
 }

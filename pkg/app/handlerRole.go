@@ -3,6 +3,7 @@ package app
 import (
 	"errors"
 	"github.com/gin-gonic/gin"
+	"inventory-api/pkg/api/helper"
 	"inventory-api/pkg/api/request"
 	"log"
 	"net/http"
@@ -29,11 +30,7 @@ func (s *Server) CreateRole() gin.HandlerFunc {
 			return
 		}
 
-		response := map[string]string{
-			"status": "success",
-			"data":   "new role created",
-		}
-		c.JSON(http.StatusOK, response)
+		helper.SuccessResponse("new role created")
 	}
 }
 
