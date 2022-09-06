@@ -19,18 +19,18 @@ func (s *Server) CreateRole() gin.HandlerFunc {
 		err := c.ShouldBindJSON(&newData)
 		if err != nil {
 			log.Printf("handler error: %v", err)
-			c.JSON(http.StatusBadRequest, nil)
+			c.JSON(helper.ErrorResponse(err))
 			return
 		}
 
 		err = s.roleService.New(newData)
 		if err != nil {
 			log.Printf("service error: %v", err)
-			c.JSON(http.StatusInternalServerError, err)
+			c.JSON(helper.ErrorResponse(err))
 			return
 		}
 
-		helper.SuccessResponse("new role created")
+		c.JSON(helper.SuccessResponse("New Role has been created"))
 	}
 }
 
