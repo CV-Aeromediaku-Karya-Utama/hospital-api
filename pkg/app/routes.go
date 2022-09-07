@@ -35,6 +35,7 @@ func (s *Server) Routes() *gin.Engine {
 			role.POST("/create", s.CreateRole())
 			role.PUT("/update/:id", s.UpdateRole())
 			role.DELETE("/delete/:id", s.DeleteRole())
+			role.POST("/batch_delete", s.BatchDeleteRole())
 		}
 		user := v1.Group("/user")
 		{

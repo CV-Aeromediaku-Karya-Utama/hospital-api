@@ -12,6 +12,7 @@ type RoleService interface {
 	List(page int, perPage int) (request.Roles, error)
 	Update(RoleID int, role request.UpdateRoleRequest) (request.UpdateRoleRequest, error)
 	Delete(RoleID int) error
+	BatchDelete(request request.BatchDeleteRoleRequest) error
 	Detail(RoleID int) (request.Role, error)
 }
 
@@ -22,6 +23,7 @@ type RoleRepository interface {
 	ListRole(page int, perPage int) (request.Roles, error)
 	UpdateRole(RoleID int, role request.UpdateRoleRequest) (request.UpdateRoleRequest, error)
 	DeleteRole(RoleID int) error
+	BatchDeleteRole(request request.BatchDeleteRoleRequest) error
 }
 
 type roleService struct {
@@ -49,6 +51,14 @@ func (s *roleService) Update(RoleID int, r request.UpdateRoleRequest) (request.U
 
 func (s *roleService) Delete(RoleID int) error {
 	err := s.storage.DeleteRole(RoleID)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (s *roleService) BatchDelete(request request.BatchDeleteRoleRequest) error {
+	err := s.storage.BatchDeleteRole(request)
 	if err != nil {
 		return err
 	}

@@ -14,6 +14,10 @@ type Roles struct {
 	Role       []Role            `json:"data"`
 }
 
+type BatchDeleteRoleRequest struct {
+	ID []int `json:"id"`
+}
+
 type UpdateRoleRequest struct {
 	Name string `json:"name"`
 }

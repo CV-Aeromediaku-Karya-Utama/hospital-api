@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"inventory-api/pkg/api/request"
 	"log"
+	"strconv"
+	"strings"
 )
 
 func (s *storage) CreateRole(r request.NewRoleRequest) error {
@@ -92,6 +94,26 @@ func (s *storage) DeleteRole(RoleID int) error {
 	statement := `DELETE FROM role WHERE id = $1`
 
 	err := s.db.QueryRow(statement, RoleID).Err()
+
+	if err != nil {
+		log.Printf("this was the error: %v", err)
+		return err
+	}
+
+	return nil
+}
+
+func (s *storage) BatchDeleteRole(request request.BatchDeleteRoleRequest) error {
+	statement := `DELETE FROM role WHERE id = ANY($1::int[])`
+
+	var ids []string
+	for _, s := range request.ID {
+		ids = append(ids, strconv.Itoa(s))
+	}
+
+	param := "{" + strings.Join(ids, ",") + "}"
+
+	err := s.db.QueryRow(statement, param).Err()
 
 	if err != nil {
 		log.Printf("this was the error: %v", err)

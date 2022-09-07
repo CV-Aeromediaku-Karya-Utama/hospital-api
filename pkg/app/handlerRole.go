@@ -132,3 +132,26 @@ func (s *Server) DeleteRole() gin.HandlerFunc {
 		c.JSON(http.StatusOK, nil)
 	}
 }
+
+func (s *Server) BatchDeleteRole() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.Header("Content-Type", "application/json")
+
+		var Data request.BatchDeleteRoleRequest
+		err := c.ShouldBindJSON(&Data)
+		if err != nil {
+			log.Printf("handler error: %v", err)
+			c.JSON(http.StatusBadRequest, err)
+			return
+		}
+
+		err = s.roleService.BatchDelete(Data)
+		if err != nil {
+			log.Printf("service error: %v", err)
+			c.JSON(http.StatusInternalServerError, err)
+			return
+		}
+
+		c.JSON(http.StatusOK, nil)
+	}
+}
