@@ -3,18 +3,16 @@ package app
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"inventory-api/pkg/api"
+	"hospital-api/pkg/api"
 	"log"
 	"os"
 )
 
 type Server struct {
-	router                 *gin.Engine
-	authService            api.AuthService
-	roleService            api.RoleService
-	userService            api.UserService
-	productCategoryService api.ProductCategoryService
-	productService         api.ProductService
+	router      *gin.Engine
+	authService api.AuthService
+	roleService api.RoleService
+	userService api.UserService
 }
 
 func NewServer(
@@ -22,16 +20,12 @@ func NewServer(
 	authService api.AuthService,
 	roleService api.RoleService,
 	userService api.UserService,
-	productCategoryService api.ProductCategoryService,
-	productService api.ProductService,
 ) *Server {
 	return &Server{
-		router:                 router,
-		authService:            authService,
-		roleService:            roleService,
-		userService:            userService,
-		productCategoryService: productCategoryService,
-		productService:         productService,
+		router:      router,
+		authService: authService,
+		roleService: roleService,
+		userService: userService,
 	}
 }
 

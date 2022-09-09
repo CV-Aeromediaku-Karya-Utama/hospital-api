@@ -2,7 +2,7 @@ package api
 
 import (
 	"github.com/golang-jwt/jwt/v4"
-	"inventory-api/pkg/api/request"
+	"hospital-api/pkg/api/request"
 	"os"
 	"time"
 )
@@ -52,7 +52,7 @@ func (a authService) Login(input request.LoginInput) (string, error) {
 	claims := token.Claims.(jwt.MapClaims)
 	claims["username"] = singleUser.Username
 	claims["user_id"] = singleUser.ID
-	claims["exp"] = time.Now().Add(time.Second * 30).Unix()
+	claims["exp"] = time.Now().Add(time.Minute * 30).Unix()
 
 	t, err := token.SignedString([]byte(os.Getenv("JWT_SECRET")))
 	return t, err

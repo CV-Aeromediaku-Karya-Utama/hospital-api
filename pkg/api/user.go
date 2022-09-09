@@ -2,7 +2,7 @@ package api
 
 import (
 	"errors"
-	"inventory-api/pkg/api/request"
+	"hospital-api/pkg/api/request"
 	"strings"
 	"time"
 )

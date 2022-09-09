@@ -3,7 +3,7 @@ package repository
 import (
 	"database/sql"
 	"fmt"
-	"inventory-api/pkg/api/request"
+	"hospital-api/pkg/api/request"
 	"log"
 	"strconv"
 	"strings"

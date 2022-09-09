@@ -1,4 +1,4 @@
-module inventory-api
+module hospital-api
 
 go 1.18
 

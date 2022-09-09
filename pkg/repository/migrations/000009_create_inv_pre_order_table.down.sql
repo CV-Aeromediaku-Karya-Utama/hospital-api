@@ -1,1 +1,0 @@
-drop table if exists inv_per_order;

@@ -1,6 +1,6 @@
-create table if not exists role
+CREATE TABLE IF NOT EXISTS role
 (
-    id serial not null,
-    name varchar(100),
-    primary key (id)
-)
+    id   SERIAL NOT NULL,
+    name VARCHAR(100),
+    PRIMARY KEY (id)
+);

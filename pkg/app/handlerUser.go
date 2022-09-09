@@ -3,7 +3,7 @@ package app
 import (
 	"errors"
 	"github.com/gin-gonic/gin"
-	"inventory-api/pkg/api/request"
+	"hospital-api/pkg/api/request"
 	"log"
 	"net/http"
 	"strconv"

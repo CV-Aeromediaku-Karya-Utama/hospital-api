@@ -42,16 +42,16 @@ func ImageUploadHelper(input interface{}) (string, error) {
 
 func SuccessResponse(message any) (int, map[string]any) {
 	response := map[string]any{
-		"status": "success",
 		"data":   message,
+		"status": "success",
 	}
 	return http.StatusOK, response
 }
 
 func ErrorResponse(message any) (int, map[string]any) {
 	response := map[string]any{
-		"status": "failed",
 		"data":   message,
+		"status": "failed",
 	}
 	return http.StatusBadRequest, response
 }

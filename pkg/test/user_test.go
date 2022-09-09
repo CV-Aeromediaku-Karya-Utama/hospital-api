@@ -2,8 +2,8 @@ package test
 
 import (
 	"errors"
-	"inventory-api/pkg/api"
-	"inventory-api/pkg/api/request"
+	"hospital-api/pkg/api"
+	"hospital-api/pkg/api/request"
 	"reflect"
 	"testing"
 )

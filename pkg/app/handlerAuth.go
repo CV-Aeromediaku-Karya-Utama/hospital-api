@@ -2,10 +2,23 @@ package app
 
 import (
 	"github.com/gin-gonic/gin"
-	"inventory-api/pkg/api/request"
+	"hospital-api/pkg/api/request"
 	"log"
 	"net/http"
 )
+
+func (s *Server) ApiStatus() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.Header("Content-Type", "application/json")
+
+		response := map[string]string{
+			"status": "success",
+			"data":   "Hospital API running smoothly",
+		}
+
+		c.JSON(http.StatusOK, response)
+	}
+}
 
 func (s *Server) Login() gin.HandlerFunc {
 	return func(c *gin.Context) {

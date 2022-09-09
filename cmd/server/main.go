@@ -6,9 +6,9 @@ import (
 	"log"
 	"os"
 
-	"inventory-api/pkg/api"
-	"inventory-api/pkg/app"
-	"inventory-api/pkg/repository"
+	"hospital-api/pkg/api"
+	"hospital-api/pkg/app"
+	"hospital-api/pkg/repository"
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
@@ -48,8 +48,6 @@ func run() error {
 	roleService := api.NewRoleService(storage)
 	userService := api.NewUserService(storage)
 	authService := api.NewAuthService(storage)
-	productCategoryService := api.NewProductCategoryService(storage)
-	productService := api.NewProductService(storage)
 
 	// start the server
 	server := app.NewServer(
@@ -57,8 +55,6 @@ func run() error {
 		authService,
 		roleService,
 		userService,
-		productCategoryService,
-		productService,
 	)
 	err = server.Run()
 	if err != nil {
