@@ -2,6 +2,7 @@ package api
 
 import (
 	"errors"
+	"github.com/google/uuid"
 	"hospital-api/pkg/api/request"
 	"strings"
 	"time"
@@ -10,69 +11,55 @@ import (
 // UserService contains the methods of the user service
 type UserService interface {
 	New(user request.NewUserRequest) error
-	List() ([]request.User, error)
-	Update(UserID int, request request.UpdateUserRequest) error
-	Delete(UserID int) error
-	Detail(UserID int) (request.SingleUser, error)
+	List(page int, perPage int) (request.Users, error)
+	Update(UserID uuid.UUID, request request.UpdateUserRequest) error
+	Delete(UserID uuid.UUID) error
+	Detail(UserID uuid.UUID) (request.User, error)
 }
 
 // UserRepository is what lets our service do db operations without knowing anything about the implementation
 type UserRepository interface {
 	HashPassword(password string) (string, error)
 	CreateUser(request.NewUserRequest) error
-	GetRoleById(RoleID int) (request.Role, error)
-	GetUserByID(id int) (request.SingleUser, error)
-	ListUser() ([]request.User, error)
-	UpdateUser(UserUD int, role request.UpdateUserRequest) error
-	DeleteUser(UserID int) error
+	GetUserByID(id uuid.UUID) (request.User, error)
+	ListUser(page int, perPage int) (request.Users, error)
+	UpdateUser(UserUD uuid.UUID, request request.UpdateUserRequest) error
+	DeleteUser(UserID uuid.UUID) error
 }
 
 type userService struct {
 	storage UserRepository
 }
 
-func (u *userService) Detail(UserID int) (request.SingleUser, error) {
+func (u *userService) Detail(UserID uuid.UUID) (request.User, error) {
 	item, err := u.storage.GetUserByID(UserID)
 	if err != nil {
-		return request.SingleUser{}, errors.New("user id not found")
+		return request.User{}, errors.New("user id not found")
 	}
 	return item, nil
 }
 
-func (u *userService) List() ([]request.User, error) {
-	data, err := u.storage.ListUser()
+func (u *userService) List(page int, perPage int) (request.Users, error) {
+	data, err := u.storage.ListUser(page, perPage)
 	if err != nil {
-		return nil, err
+		return request.Users{}, err
 	}
 	return data, nil
 }
 
-func (u *userService) Update(UserID int, request request.UpdateUserRequest) error {
+func (u *userService) Update(UserID uuid.UUID, request request.UpdateUserRequest) error {
 	if request.Name == "" {
 		return errors.New("user service - name required")
 	}
 	if request.Username == "" {
 		return errors.New("user service - Username required")
 	}
-	if request.Sex == "" {
-		return errors.New("user service - Sex required")
-	}
-	if request.Email == "" {
-		return errors.New("user service - Email required")
-	}
-	if request.RoleID == 0 {
-		return errors.New("user service - RoleID required")
-	}
+
 	request.UpdatedAt = time.Now()
 
 	_, err := u.storage.GetUserByID(UserID)
 	if err != nil {
 		return errors.New("user id not found")
-	}
-
-	_, err = u.storage.GetRoleById(request.RoleID)
-	if err != nil {
-		return errors.New("role id not found")
 	}
 
 	err = u.storage.UpdateUser(UserID, request)
@@ -82,7 +69,7 @@ func (u *userService) Update(UserID int, request request.UpdateUserRequest) erro
 	return nil
 }
 
-func (u *userService) Delete(UserID int) error {
+func (u *userService) Delete(UserID uuid.UUID) error {
 	err := u.storage.DeleteUser(UserID)
 	if err != nil {
 		return err
@@ -91,11 +78,6 @@ func (u *userService) Delete(UserID int) error {
 }
 
 func (u *userService) New(user request.NewUserRequest) error {
-	role, err := u.storage.GetRoleById(user.RoleID)
-	if err != nil {
-		return err
-	}
-
 	if user.Email == "" {
 		return errors.New("user service - email required")
 	}
@@ -118,7 +100,7 @@ func (u *userService) New(user request.NewUserRequest) error {
 		Password: hash,
 		Sex:      user.Sex,
 		Email:    user.Email,
-		RoleID:   role.ID,
+		Status:   1,
 	}
 
 	err = u.storage.CreateUser(newUser)

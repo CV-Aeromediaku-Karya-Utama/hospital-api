@@ -2,8 +2,26 @@ package request
 
 import (
 	"database/sql"
+	"github.com/google/uuid"
 	"time"
 )
+
+type User struct {
+	ID        uuid.UUID    `json:"id"`
+	Name      string       `json:"name"`
+	Username  string       `json:"username"`
+	Sex       string       `json:"sex"`
+	Email     string       `json:"email"`
+	Password  string       `json:"password"`
+	Status    int          `json:"status"`
+	CreatedAt sql.NullTime `json:"created_at"`
+	UpdatedAt sql.NullTime `json:"updated_at"`
+}
+
+type Users struct {
+	User       []User            `json:"users"`
+	Pagination PaginationRequest `json:"pagination"`
+}
 
 type NewUserRequest struct {
 	Name     string `json:"name"`
@@ -11,18 +29,7 @@ type NewUserRequest struct {
 	Password string `json:"password"`
 	Sex      string `json:"sex"`
 	Email    string `json:"email"`
-	RoleID   int    `json:"role_id"`
-}
-
-type User struct {
-	ID        int          `json:"id"`
-	Name      string       `json:"name"`
-	Username  string       `json:"username"`
-	Sex       string       `json:"sex"`
-	Email     string       `json:"email"`
-	Role      Role         `json:"role_id"`
-	CreatedAt sql.NullTime `json:"created_at"`
-	UpdatedAt sql.NullTime `json:"updated_at"`
+	Status   int    `json:"status"`
 }
 
 type UpdateUserRequest struct {
@@ -31,15 +38,5 @@ type UpdateUserRequest struct {
 	Username  string    `json:"username"`
 	Sex       string    `json:"sex"`
 	Email     string    `json:"email"`
-	RoleID    int       `json:"role_id"`
-}
-
-type SingleUser struct {
-	ID       uint   `json:"id"`
-	Name     string `json:"name"`
-	Username string `json:"username"`
-	Sex      string `json:"sex"`
-	Email    string `json:"email"`
-	Password string `json:"password"`
-	RoleID   int    `json:"role_id"`
+	Status    int       `json:"status"`
 }

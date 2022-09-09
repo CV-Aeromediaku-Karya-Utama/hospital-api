@@ -1,14 +1,15 @@
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
 CREATE TABLE IF NOT EXISTS "user"
 (
-    id         SERIAL             NOT NULL,
-    name       VARCHAR(100)        NOT NULL,
+    id         uuid                NOT NULL DEFAULT uuid_generate_v4(),
+    name       VARCHAR(100)        NULL,
     username   VARCHAR(100)        NOT NULL,
     password   VARCHAR(100)        NOT NULL,
-    sex        VARCHAR(20)         NOT NULL,
-    email      VARCHAR(100) UNIQUE NOT NULL,
-    role_id    integer             not null default 1,
+    sex        VARCHAR(20)         NULL,
+    email      VARCHAR(100) UNIQUE NULL,
+    status     INT                 NOT NULL DEFAULT 0,
     created_at TIMESTAMP           NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMP           NULL,
-    primary key (id),
-    foreign key (role_id) references role(id)
+    primary key (id)
 );

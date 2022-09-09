@@ -2,6 +2,7 @@ package api
 
 import (
 	"github.com/golang-jwt/jwt/v4"
+	"github.com/google/uuid"
 	"hospital-api/pkg/api/request"
 	"os"
 	"time"
@@ -17,8 +18,8 @@ type AuthRepository interface {
 	CheckPasswordHash(password, hash string) bool
 	HashPassword(password string) (string, error)
 	ValidToken(t *jwt.Token, id string) bool
-	GetUserByEmail(email string) (request.SingleUser, error)
-	GetUserByUsername(username string) (request.SingleUser, error)
+	GetUserByEmail(email string) (request.User, error)
+	GetUserByUsername(username string) (request.User, error)
 }
 
 type authService struct {
@@ -26,21 +27,26 @@ type authService struct {
 }
 
 func (a authService) Login(input request.LoginInput) (string, error) {
-	singleUser := request.SingleUser{}
+	singleUser := request.User{}
 	username, err := a.storage.GetUserByUsername(input.Identity)
 	if err != nil {
 		return "Error on username", err
 	}
 
-	if username.ID != 0 {
-		singleUser = request.SingleUser{
+	if username.ID != uuid.Nil {
+		singleUser = request.User{
 			ID:       username.ID,
 			Username: username.Username,
 			Email:    username.Email,
 			Password: username.Password,
+			Status:   username.Status,
 		}
 	} else {
 		return "User not found", err
+	}
+
+	if singleUser.Status != 1 {
+		return "User not active", err
 	}
 
 	if !a.storage.CheckPasswordHash(input.Password, singleUser.Password) {

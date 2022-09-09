@@ -3,11 +3,17 @@ package app
 import (
 	"errors"
 	"github.com/gin-gonic/gin"
+	uuid2 "github.com/google/uuid"
+	uuid "github.com/satori/go.uuid"
 	"hospital-api/pkg/api/request"
 	"log"
 	"net/http"
 	"strconv"
 )
+
+type UserQueryParams struct {
+	ID string `form:"id"`
+}
 
 func (s *Server) CreateUser() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -40,7 +46,20 @@ func (s *Server) CreateUser() gin.HandlerFunc {
 func (s *Server) ListUser() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.Header("Content-Type", "application/json")
-		data, err := s.userService.List()
+		pageStr := c.DefaultQuery("page", "1")
+		page, err := strconv.Atoi(pageStr)
+		if err != nil {
+			c.AbortWithStatus(http.StatusBadRequest)
+			return
+		}
+		perPageStr := c.DefaultQuery("per_page", "10")
+		perPage, err := strconv.Atoi(perPageStr)
+		if err != nil {
+			c.AbortWithStatus(http.StatusBadRequest)
+			return
+		}
+
+		data, err := s.userService.List(page, perPage)
 		if err != nil {
 			log.Printf("service error: %v", err)
 			c.JSON(http.StatusInternalServerError, err)
@@ -59,14 +78,12 @@ func (s *Server) ListUser() gin.HandlerFunc {
 func (s *Server) UserDetail() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.Header("Content-Type", "application/json")
-		id, err := strconv.Atoi(c.Param("id"))
-		if err != nil {
-			log.Printf("handler error: %v", err)
-			c.JSON(http.StatusBadRequest, errors.New("ID not found"))
-			return
+		var queryParams UserQueryParams
+		if c.BindQuery(&queryParams) == nil {
+			log.Println("Query String ", queryParams.ID)
 		}
-
-		data, err := s.userService.Detail(id)
+		id, _ := uuid.FromString(queryParams.ID)
+		data, err := s.userService.Detail(uuid2.UUID(id))
 		if err != nil {
 			log.Printf("service error: %v", err)
 			c.JSON(http.StatusInternalServerError, err)
@@ -85,22 +102,17 @@ func (s *Server) UserDetail() gin.HandlerFunc {
 func (s *Server) UpdateUser() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.Header("Content-Type", "application/json")
-
 		var Data request.UpdateUserRequest
+
+		id := uuid.Must(uuid.FromString(c.Param("id")))
 		err := c.ShouldBindJSON(&Data)
 		if err != nil {
 			log.Printf("handler error: %v", err)
 			c.JSON(http.StatusBadRequest, errors.New("can't bind the value"))
 			return
 		}
-		id, err := strconv.Atoi(c.Param("id"))
-		if err != nil {
-			log.Printf("handler error: %v", err)
-			c.JSON(http.StatusBadRequest, errors.New("ID not found"))
-			return
-		}
 
-		err = s.userService.Update(id, Data)
+		err = s.userService.Update(uuid2.UUID(id), Data)
 		if err != nil {
 			log.Printf("service error: %v", err)
 			c.JSON(http.StatusInternalServerError, errors.New("failed to update"))
@@ -119,14 +131,9 @@ func (s *Server) DeleteUser() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.Header("Content-Type", "application/json")
 
-		id, err := strconv.Atoi(c.Param("id"))
-		if err != nil {
-			log.Printf("handler error: %v", err)
-			c.JSON(http.StatusBadRequest, errors.New("ID not found"))
-			return
-		}
+		id := uuid.Must(uuid.FromString(c.Param("id")))
 
-		err = s.userService.Delete(id)
+		err := s.userService.Delete(uuid2.UUID(id))
 		if err != nil {
 			log.Printf("service error: %v", err)
 			c.JSON(http.StatusInternalServerError, errors.New("failed to update"))
