@@ -1,5 +1,9 @@
+BEGIN ;
 CREATE TABLE IF NOT EXISTS doctor_dicipline
 (
-    id         uuid                NOT NULL DEFAULT uuid_generate_v4(),
+    id   SERIAL  NOT NULL,
+    name VARCHAR NOT NULL,
     primary key (id)
 );
+INSERT INTO doctor_dicipline (id,name) VALUES (1,'mata');
+COMMIT ;
