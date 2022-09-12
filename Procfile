@@ -1,1 +1,1 @@
-web: bin/hospital-api
+web: hospital-api
