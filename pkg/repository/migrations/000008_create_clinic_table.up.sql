@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS clinic
+CREATE TABLE IF NOT EXISTS hsp_clinic
 (
     id         uuid                NOT NULL DEFAULT uuid_generate_v4(),
     primary key (id)

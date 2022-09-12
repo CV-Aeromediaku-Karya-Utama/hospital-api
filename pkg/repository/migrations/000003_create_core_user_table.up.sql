@@ -1,6 +1,7 @@
+BEGIN;
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
-CREATE TABLE IF NOT EXISTS "user"
+CREATE TABLE IF NOT EXISTS core_user
 (
     id         uuid                NOT NULL DEFAULT uuid_generate_v4(),
     name       VARCHAR(100)        NULL,
@@ -13,3 +14,4 @@ CREATE TABLE IF NOT EXISTS "user"
     updated_at TIMESTAMP           NULL,
     primary key (id)
 );
+COMMIT;
