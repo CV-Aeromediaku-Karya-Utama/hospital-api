@@ -11,7 +11,7 @@ func (s *Server) Routes() *gin.Engine {
 
 	v1 := router.Group("/v1/api")
 	{
-		v1.GET("/status", s.ApiStatus())
+		v1.Use(middleware.CheckRole("ADMIN")).GET("/status", s.ApiStatus())
 		v1.POST("/login", s.Login())
 		v1.POST("/register", s.CreateUser())
 		user := v1.Group("/user")

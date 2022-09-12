@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v4"
+	"log"
 	"net/http"
 	"os"
 	"strings"
@@ -74,6 +75,13 @@ func JwtTokenCheck(c *gin.Context) {
 		return
 	}
 	c.Next()
+}
+
+func CheckRole(role string) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		log.Print(role)
+		c.Next()
+	}
 }
 
 // PrivateACLCheck is to check jwt token and check params id equals to token.Claims id
