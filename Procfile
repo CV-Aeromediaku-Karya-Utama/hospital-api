@@ -1,1 +1,1 @@
-web: bin/hospital-api/cmd/server/main.go
+web: hospital-api
