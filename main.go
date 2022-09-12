@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"github.com/joho/godotenv"
 	"os"
 
 	"hospital-api/pkg/api"
@@ -13,9 +14,10 @@ import (
 )
 
 func main() {
-	//if err := godotenv.Load(); err != nil {
-	//	log.Fatal("Error loading .env file")
-	//}
+	if err := godotenv.Load(); err != nil {
+		//log.Fatal("Error loading .env file")
+		fmt.Println("Error loading .env file")
+	}
 	if err := run(); err != nil {
 		fmt.Fprintf(os.Stderr, "This is the startup error: %s\n", err)
 		os.Exit(1)
@@ -23,7 +25,7 @@ func main() {
 }
 
 func run() error {
-	connectionString := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=require",
+	connectionString := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
 		os.Getenv("DB_HOST"), os.Getenv("DB_PORT"), os.Getenv("DB_USER"), os.Getenv("DB_PASS"), os.Getenv("DB_NAME"))
 
 	db, err := setupDatabase(connectionString)
@@ -33,7 +35,7 @@ func run() error {
 
 	// create storage dependency
 	storage := repository.NewStorage(db)
-	err = storage.RunMigrations(connectionString, db)
+	//err = storage.RunMigrations(connectionString, db)
 	if err != nil {
 		return err
 	}

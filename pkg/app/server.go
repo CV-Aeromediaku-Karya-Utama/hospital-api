@@ -5,7 +5,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"hospital-api/pkg/api"
 	"log"
-	"os"
 )
 
 type Server struct {
@@ -34,10 +33,11 @@ func (s *Server) Run() error {
 	r := s.Routes()
 
 	// run the server through the router
-	port := os.Getenv("APP_PORT")
-	if port == "" {
-		port = "9000" // Default port if not specified
-	}
+	//port := os.Getenv("APP_PORT")
+	//if port == "" {
+	//	port = "9000"
+	//}
+	port := "8080"
 	server := fmt.Sprintf(":%s", port)
 	err := r.Run(server)
 
