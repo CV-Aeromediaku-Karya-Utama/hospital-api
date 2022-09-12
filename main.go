@@ -3,7 +3,6 @@ package main
 import (
 	"database/sql"
 	"fmt"
-	"log"
 	"os"
 
 	"hospital-api/pkg/api"
@@ -11,13 +10,12 @@ import (
 	"hospital-api/pkg/repository"
 
 	"github.com/gin-gonic/gin"
-	"github.com/joho/godotenv"
 )
 
 func main() {
-	if err := godotenv.Load(); err != nil {
-		log.Fatal("Error loading .env file")
-	}
+	//if err := godotenv.Load(); err != nil {
+	//	log.Fatal("Error loading .env file")
+	//}
 	if err := run(); err != nil {
 		fmt.Fprintf(os.Stderr, "This is the startup error: %s\n", err)
 		os.Exit(1)
