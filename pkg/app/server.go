@@ -34,8 +34,12 @@ func (s *Server) Run() error {
 	r := s.Routes()
 
 	// run the server through the router
-	port := fmt.Sprintf(":%s", os.Getenv("APP_PORT"))
-	err := r.Run(port)
+	port := os.Getenv("APP_PORT")
+	if port == "" {
+		port = "9000" // Default port if not specified
+	}
+	server := fmt.Sprintf(":%s", port)
+	err := r.Run(server)
 
 	if err != nil {
 		log.Printf("Server - there was an error calling Run on router: %v", err)
