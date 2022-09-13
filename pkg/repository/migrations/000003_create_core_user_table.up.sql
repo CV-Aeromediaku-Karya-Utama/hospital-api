@@ -14,4 +14,9 @@ CREATE TABLE IF NOT EXISTS core_user
     updated_at TIMESTAMP           NULL,
     primary key (id)
 );
+
+INSERT INTO core_user (id, name, username, password, sex, email, status)
+VALUES ('61815430-6a92-44b5-81cd-0dfdfd5cab3e', 'admin', 'admin',
+        '$2a$14$5QGizUm0t7oaGyg1.zi4VO7LlePwmvK27QWWOG1LN5ATxkbNB6ZYG', 'male', 'admin@admin.admin', 1);
+
 COMMIT;

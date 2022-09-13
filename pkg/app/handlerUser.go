@@ -127,6 +127,34 @@ func (s *Server) UpdateUser() gin.HandlerFunc {
 	}
 }
 
+func (s *Server) UpdateUserPassword() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.Header("Content-Type", "application/json")
+		var Data request.UpdateUserPasswordRequest
+
+		id := uuid.Must(uuid.FromString(c.Param("id")))
+		err := c.ShouldBindJSON(&Data)
+		if err != nil {
+			log.Printf("handler error: %v", err)
+			c.JSON(http.StatusBadRequest, errors.New("can't bind the value"))
+			return
+		}
+
+		err = s.userService.UpdatePassword(uuid2.UUID(id), Data)
+		if err != nil {
+			log.Printf("service error: %v", err)
+			c.JSON(http.StatusInternalServerError, errors.New("failed to update"))
+			return
+		}
+
+		response := map[string]string{
+			"status": "success",
+			"data":   "user password updated",
+		}
+		c.JSON(http.StatusOK, response)
+	}
+}
+
 func (s *Server) DeleteUser() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.Header("Content-Type", "application/json")

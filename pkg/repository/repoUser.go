@@ -146,6 +146,19 @@ func (s *storage) UpdateUser(UserID uuid.UUID, r request.UpdateUserRequest) erro
 	return nil
 }
 
+func (s *storage) UpdateUserPassword(UserID uuid.UUID, request request.UpdateUserPasswordRequest) error {
+	statement := `UPDATE core_user SET password = $1, updated_at = $2 WHERE id = $3`
+
+	err := s.db.QueryRow(statement, request.Password, request.UpdatedAt, UserID).Err()
+
+	if err != nil {
+		log.Printf("this was the error: %v", err)
+		return err
+	}
+
+	return nil
+}
+
 func (s *storage) DeleteUser(UserID uuid.UUID) error {
 	statement := `DELETE FROM core_user WHERE id = $1`
 

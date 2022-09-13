@@ -13,6 +13,7 @@ type UserService interface {
 	New(user request.NewUserRequest) error
 	List(page int, perPage int) (request.Users, error)
 	Update(UserID uuid.UUID, request request.UpdateUserRequest) error
+	UpdatePassword(UserID uuid.UUID, request request.UpdateUserPasswordRequest) error
 	Delete(UserID uuid.UUID) error
 	Detail(UserID uuid.UUID) (request.User, error)
 }
@@ -20,10 +21,12 @@ type UserService interface {
 // UserRepository is what lets our service do db operations without knowing anything about the implementation
 type UserRepository interface {
 	HashPassword(password string) (string, error)
+	CheckPasswordHash(password, hash string) bool
 	CreateUser(request.NewUserRequest) error
 	GetUserByID(id uuid.UUID) (request.User, error)
 	ListUser(page int, perPage int) (request.Users, error)
 	UpdateUser(UserUD uuid.UUID, request request.UpdateUserRequest) error
+	UpdateUserPassword(UserID uuid.UUID, request request.UpdateUserPasswordRequest) error
 	DeleteUser(UserID uuid.UUID) error
 }
 
@@ -65,6 +68,37 @@ func (u *userService) Update(UserID uuid.UUID, request request.UpdateUserRequest
 	err = u.storage.UpdateUser(UserID, request)
 	if err != nil {
 		return errors.New("update failed")
+	}
+	return nil
+}
+
+func (u *userService) UpdatePassword(UserID uuid.UUID, r request.UpdateUserPasswordRequest) error {
+	if r.Password == "" {
+		return errors.New("user service - password required")
+	}
+	if r.OldPassword == "" {
+		return errors.New("user service - old password required")
+	}
+
+	r.UpdatedAt = time.Now()
+
+	user, err := u.storage.GetUserByID(UserID)
+	if err != nil {
+		return errors.New("user service - user id not found")
+	}
+
+	if !u.storage.CheckPasswordHash(r.OldPassword, user.Password) {
+		return errors.New("user service - Old Password not match")
+	}
+
+	hash, err := u.storage.HashPassword(r.Password)
+	newUser := request.UpdateUserPasswordRequest{
+		Password: hash,
+	}
+
+	err = u.storage.UpdateUserPassword(UserID, newUser)
+	if err != nil {
+		return errors.New("update Password failed")
 	}
 	return nil
 }

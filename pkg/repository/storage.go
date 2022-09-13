@@ -20,6 +20,7 @@ type Storage interface {
 	api.UserRepository
 	api.RoleRepository
 	api.AuthRepository
+	api.PermissionRepository
 }
 
 type storage struct {

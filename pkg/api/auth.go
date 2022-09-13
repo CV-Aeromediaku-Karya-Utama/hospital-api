@@ -58,7 +58,7 @@ func (a authService) Login(input request.LoginInput) (string, error) {
 	claims := token.Claims.(jwt.MapClaims)
 	claims["username"] = singleUser.Username
 	claims["user_id"] = singleUser.ID
-	claims["exp"] = time.Now().Add(time.Minute * 30).Unix()
+	claims["exp"] = time.Now().Add(time.Minute * 60).Unix()
 
 	t, err := token.SignedString([]byte(os.Getenv("JWT_SECRET")))
 	return t, err

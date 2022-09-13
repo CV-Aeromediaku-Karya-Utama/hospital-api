@@ -6,5 +6,6 @@ CREATE TABLE IF NOT EXISTS core_permission
     primary key (id)
 );
 INSERT INTO core_permission (name)
-VALUES ('manage-user');
+VALUES ('user-management'),
+       ('role-management');
 COMMIT;

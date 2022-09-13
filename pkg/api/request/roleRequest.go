@@ -1,17 +1,19 @@
 package request
 
 type NewRoleRequest struct {
-	Name string `json:"name"`
+	Name       string `json:"name"`
+	Permission []int  `json:"permission"`
 }
 
 type Role struct {
-	ID   int    `json:"id"`
-	Name string `json:"name"`
+	ID         int          `json:"id"`
+	Name       string       `json:"name"`
+	Permission []Permission `json:"permission"`
 }
 
 type Roles struct {
+	Role       []Role            `json:"roles"`
 	Pagination PaginationRequest `json:"pagination"`
-	Role       []Role            `json:"data"`
 }
 
 type BatchDeleteRoleRequest struct {

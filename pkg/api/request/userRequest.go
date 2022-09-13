@@ -12,7 +12,7 @@ type User struct {
 	Username  string       `json:"username"`
 	Sex       string       `json:"sex"`
 	Email     string       `json:"email"`
-	Password  string       `json:"password"`
+	Password  string       `json:"password,omitempty"`
 	Status    int          `json:"status"`
 	CreatedAt sql.NullTime `json:"created_at"`
 	UpdatedAt sql.NullTime `json:"updated_at"`
@@ -39,4 +39,10 @@ type UpdateUserRequest struct {
 	Sex       string    `json:"sex"`
 	Email     string    `json:"email"`
 	Status    int       `json:"status"`
+}
+
+type UpdateUserPasswordRequest struct {
+	UpdatedAt   time.Time `json:"updated_at"`
+	OldPassword string    `json:"old_password"`
+	Password    string    `json:"password"`
 }

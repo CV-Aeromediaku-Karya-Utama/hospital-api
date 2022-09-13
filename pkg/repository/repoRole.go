@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"hospital-api/pkg/api/request"
@@ -9,14 +10,26 @@ import (
 	"strings"
 )
 
-func (s *storage) CreateRole(r request.NewRoleRequest) error {
-	statement := `INSERT INTO core_role (name) VALUES ($1);`
-
-	err := s.db.QueryRow(statement, r.Name).Err()
-
+func (s *storage) CreateRole(ctx context.Context, r request.NewRoleRequest) error {
+	var ID int
+	tx, err := s.db.BeginTx(ctx, nil)
 	if err != nil {
-		log.Printf("this was the error: %v", err)
-		return err
+		return fmt.Errorf("repo err - %v", err)
+	}
+	defer tx.Rollback()
+	err = tx.QueryRow("INSERT INTO core_role (name) VALUES ($1) RETURNING id;", r.Name).Scan(&ID)
+	if err != nil {
+		return fmt.Errorf("repo err - %v", err)
+	}
+	for _, v := range r.Permission {
+		_, err = tx.ExecContext(ctx, "INSERT INTO core_role_permission (role_id, permission_id) VALUES ($1, $2);", ID, v)
+		if err != nil {
+			return fmt.Errorf("repo err - %v", err)
+		}
+	}
+
+	if err = tx.Commit(); err != nil {
+		return fmt.Errorf("repo err - %v", err)
 	}
 
 	return nil

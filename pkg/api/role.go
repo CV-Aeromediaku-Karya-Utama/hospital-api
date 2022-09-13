@@ -1,6 +1,7 @@
 package api
 
 import (
+	"context"
 	"errors"
 	"hospital-api/pkg/api/request"
 	"strings"
@@ -18,7 +19,7 @@ type RoleService interface {
 
 // RoleRepository is what lets our service do db operations without knowing anything about the implementation
 type RoleRepository interface {
-	CreateRole(request.NewRoleRequest) error
+	CreateRole(ctx context.Context, r request.NewRoleRequest) error
 	GetRoleById(RoleID int) (request.Role, error)
 	ListRole(page int, perPage int) (request.Roles, error)
 	UpdateRole(RoleID int, role request.UpdateRoleRequest) (request.UpdateRoleRequest, error)
@@ -85,9 +86,13 @@ func (s *roleService) New(r request.NewRoleRequest) error {
 	if r.Name == "" {
 		return errors.New("role service - name required")
 	}
+	if r.Permission == nil {
+		return errors.New("role service - name required")
+	}
 	r.Name = strings.ToUpper(r.Name)
 
-	err := s.storage.CreateRole(r)
+	ctx := context.Background()
+	err := s.storage.CreateRole(ctx, r)
 
 	if err != nil {
 		return err

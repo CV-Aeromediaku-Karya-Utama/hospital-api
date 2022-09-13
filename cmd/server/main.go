@@ -35,10 +35,10 @@ func run() error {
 
 	// create storage dependency
 	storage := repository.NewStorage(db)
-	//err = storage.RunMigrations(connectionString, db)
-	//if err != nil {
-	//	return err
-	//}
+	err = storage.RunMigrations(connectionString, db)
+	if err != nil {
+		return err
+	}
 
 	// create router dependency
 	router := gin.Default()
@@ -47,6 +47,7 @@ func run() error {
 	roleService := api.NewRoleService(storage)
 	userService := api.NewUserService(storage)
 	authService := api.NewAuthService(storage)
+	permissionService := api.NewPermissionService(storage)
 
 	// start the server
 	server := app.NewServer(
@@ -54,6 +55,7 @@ func run() error {
 		authService,
 		roleService,
 		userService,
+		permissionService,
 	)
 	err = server.Run()
 	if err != nil {

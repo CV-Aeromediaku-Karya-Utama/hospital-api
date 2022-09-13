@@ -10,6 +10,6 @@ createmigrate:
 	migrate create -ext sql -dir pkg/repository/migrations -seq ${file}
 
 service:
-	touch pkg/app/handler${file}.go
 	touch pkg/api/${file}.go
-	touch pkg/repository/${file}.go
+	touch pkg/app/handler${file}.go
+	touch pkg/repository/repo${file}.go
