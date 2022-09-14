@@ -2,12 +2,11 @@ package request
 
 import (
 	"database/sql"
-	"github.com/google/uuid"
 	"time"
 )
 
 type User struct {
-	ID        uuid.UUID    `json:"id"`
+	ID        int          `json:"id"`
 	Name      string       `json:"name"`
 	Username  string       `json:"username"`
 	Sex       string       `json:"sex"`

@@ -4,12 +4,13 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	_ "github.com/go-sql-driver/mysql"
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	_ "github.com/lib/pq"
+	"gorm.io/gorm"
 	"hospital-api/pkg/api"
+	"hospital-api/pkg/repository/gormMigrations"
 	"log"
 	"path/filepath"
 	"runtime"
@@ -17,6 +18,7 @@ import (
 
 type Storage interface {
 	RunMigrations(connectionString string, db *sql.DB) error
+	RunGormMigrations(gormDB *gorm.DB) error
 	api.UserRepository
 	api.RoleRepository
 	api.AuthRepository
@@ -24,11 +26,15 @@ type Storage interface {
 }
 
 type storage struct {
-	db *sql.DB
+	db   *sql.DB
+	gorm *gorm.DB
 }
 
-func NewStorage(db *sql.DB) Storage {
-	return &storage{db: db}
+func NewStorage(db *sql.DB, gorm *gorm.DB) Storage {
+	return &storage{
+		db:   db,
+		gorm: gorm,
+	}
 }
 
 func (s *storage) RunMigrations(connectionString string, db *sql.DB) error {
@@ -52,5 +58,17 @@ func (s *storage) RunMigrations(connectionString string, db *sql.DB) error {
 		log.Fatal(err)
 	}
 
+	return nil
+}
+
+func (s *storage) RunGormMigrations(gormDB *gorm.DB) error {
+	err := gormDB.AutoMigrate(
+		&gormMigrations.CoreUser{},
+		&gormMigrations.CorePermission{},
+		&gormMigrations.CoreRole{},
+	)
+	if err != nil {
+		return err
+	}
 	return nil
 }

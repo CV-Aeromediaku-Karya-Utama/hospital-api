@@ -2,7 +2,6 @@ package api
 
 import (
 	"errors"
-	"github.com/google/uuid"
 	"hospital-api/pkg/api/request"
 	"strings"
 	"time"
@@ -12,10 +11,10 @@ import (
 type UserService interface {
 	New(user request.NewUserRequest) error
 	List(page int, perPage int) (request.Users, error)
-	Update(UserID uuid.UUID, request request.UpdateUserRequest) error
-	UpdatePassword(UserID uuid.UUID, request request.UpdateUserPasswordRequest) error
-	Delete(UserID uuid.UUID) error
-	Detail(UserID uuid.UUID) (request.User, error)
+	Update(UserID int, request request.UpdateUserRequest) error
+	UpdatePassword(UserID int, request request.UpdateUserPasswordRequest) error
+	Delete(UserID int) error
+	Detail(UserID int) (request.User, error)
 }
 
 // UserRepository is what lets our service do db operations without knowing anything about the implementation
@@ -23,18 +22,18 @@ type UserRepository interface {
 	HashPassword(password string) (string, error)
 	CheckPasswordHash(password, hash string) bool
 	CreateUser(request.NewUserRequest) error
-	GetUserByID(id uuid.UUID) (request.User, error)
+	GetUserByID(id int) (request.User, error)
 	ListUser(page int, perPage int) (request.Users, error)
-	UpdateUser(UserUD uuid.UUID, request request.UpdateUserRequest) error
-	UpdateUserPassword(UserID uuid.UUID, request request.UpdateUserPasswordRequest) error
-	DeleteUser(UserID uuid.UUID) error
+	UpdateUser(UserUD int, request request.UpdateUserRequest) error
+	UpdateUserPassword(UserID int, request request.UpdateUserPasswordRequest) error
+	DeleteUser(UserID int) error
 }
 
 type userService struct {
 	storage UserRepository
 }
 
-func (u *userService) Detail(UserID uuid.UUID) (request.User, error) {
+func (u *userService) Detail(UserID int) (request.User, error) {
 	item, err := u.storage.GetUserByID(UserID)
 	if err != nil {
 		return request.User{}, errors.New("user id not found")
@@ -50,7 +49,7 @@ func (u *userService) List(page int, perPage int) (request.Users, error) {
 	return data, nil
 }
 
-func (u *userService) Update(UserID uuid.UUID, request request.UpdateUserRequest) error {
+func (u *userService) Update(UserID int, request request.UpdateUserRequest) error {
 	if request.Name == "" {
 		return errors.New("user service - name required")
 	}
@@ -72,7 +71,7 @@ func (u *userService) Update(UserID uuid.UUID, request request.UpdateUserRequest
 	return nil
 }
 
-func (u *userService) UpdatePassword(UserID uuid.UUID, r request.UpdateUserPasswordRequest) error {
+func (u *userService) UpdatePassword(UserID int, r request.UpdateUserPasswordRequest) error {
 	if r.Password == "" {
 		return errors.New("user service - password required")
 	}
@@ -103,7 +102,7 @@ func (u *userService) UpdatePassword(UserID uuid.UUID, r request.UpdateUserPassw
 	return nil
 }
 
-func (u *userService) Delete(UserID uuid.UUID) error {
+func (u *userService) Delete(UserID int) error {
 	err := u.storage.DeleteUser(UserID)
 	if err != nil {
 		return err

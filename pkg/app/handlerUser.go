@@ -3,8 +3,6 @@ package app
 import (
 	"errors"
 	"github.com/gin-gonic/gin"
-	uuid2 "github.com/google/uuid"
-	uuid "github.com/satori/go.uuid"
 	"hospital-api/pkg/api/request"
 	"log"
 	"net/http"
@@ -82,8 +80,9 @@ func (s *Server) UserDetail() gin.HandlerFunc {
 		if c.BindQuery(&queryParams) == nil {
 			log.Println("Query String ", queryParams.ID)
 		}
-		id, _ := uuid.FromString(queryParams.ID)
-		data, err := s.userService.Detail(uuid2.UUID(id))
+		//id, _ := uuid.FromString(queryParams.ID)
+		id, _ := strconv.Atoi(queryParams.ID)
+		data, err := s.userService.Detail(id)
 		if err != nil {
 			log.Printf("service error: %v", err)
 			c.JSON(http.StatusInternalServerError, err)
@@ -104,7 +103,9 @@ func (s *Server) UpdateUser() gin.HandlerFunc {
 		c.Header("Content-Type", "application/json")
 		var Data request.UpdateUserRequest
 
-		id := uuid.Must(uuid.FromString(c.Param("id")))
+		//id := uuid.Must(uuid.FromString(c.Param("id")))
+		id, _ := strconv.Atoi(c.Param("id"))
+
 		err := c.ShouldBindJSON(&Data)
 		if err != nil {
 			log.Printf("handler error: %v", err)
@@ -112,7 +113,7 @@ func (s *Server) UpdateUser() gin.HandlerFunc {
 			return
 		}
 
-		err = s.userService.Update(uuid2.UUID(id), Data)
+		err = s.userService.Update(id, Data)
 		if err != nil {
 			log.Printf("service error: %v", err)
 			c.JSON(http.StatusInternalServerError, errors.New("failed to update"))
@@ -132,7 +133,9 @@ func (s *Server) UpdateUserPassword() gin.HandlerFunc {
 		c.Header("Content-Type", "application/json")
 		var Data request.UpdateUserPasswordRequest
 
-		id := uuid.Must(uuid.FromString(c.Param("id")))
+		//id := uuid.Must(uuid.FromString(c.Param("id")))
+		id, _ := strconv.Atoi(c.Param("id"))
+
 		err := c.ShouldBindJSON(&Data)
 		if err != nil {
 			log.Printf("handler error: %v", err)
@@ -140,7 +143,7 @@ func (s *Server) UpdateUserPassword() gin.HandlerFunc {
 			return
 		}
 
-		err = s.userService.UpdatePassword(uuid2.UUID(id), Data)
+		err = s.userService.UpdatePassword(id, Data)
 		if err != nil {
 			log.Printf("service error: %v", err)
 			c.JSON(http.StatusInternalServerError, errors.New("failed to update"))
@@ -159,9 +162,10 @@ func (s *Server) DeleteUser() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.Header("Content-Type", "application/json")
 
-		id := uuid.Must(uuid.FromString(c.Param("id")))
+		//id := uuid.Must(uuid.FromString(c.Param("id")))
+		id, _ := strconv.Atoi(c.Param("id"))
 
-		err := s.userService.Delete(uuid2.UUID(id))
+		err := s.userService.Delete(id)
 		if err != nil {
 			log.Printf("service error: %v", err)
 			c.JSON(http.StatusInternalServerError, errors.New("failed to update"))

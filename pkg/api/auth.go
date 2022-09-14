@@ -2,7 +2,6 @@ package api
 
 import (
 	"github.com/golang-jwt/jwt/v4"
-	"github.com/google/uuid"
 	"hospital-api/pkg/api/request"
 	"os"
 	"time"
@@ -33,7 +32,7 @@ func (a authService) Login(input request.LoginInput) (string, error) {
 		return "Error on username", err
 	}
 
-	if username.ID != uuid.Nil {
+	if username.ID != 0 {
 		singleUser = request.User{
 			ID:       username.ID,
 			Username: username.Username,

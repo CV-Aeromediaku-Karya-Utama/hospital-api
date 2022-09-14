@@ -3,13 +3,12 @@ package repository
 import (
 	"database/sql"
 	"fmt"
-	"github.com/google/uuid"
 	"hospital-api/pkg/api/request"
 	"log"
 )
 
 func (s *storage) CreateUser(request request.NewUserRequest) error {
-	statement := `INSERT INTO core_user (name, username, password, sex, email, status) VALUES ($1, $2, $3, $4, $5, $6);`
+	statement := `INSERT INTO core_users (name, username, password, sex, email, status) VALUES ($1, $2, $3, $4, $5, $6);`
 
 	err := s.db.QueryRow(statement, request.Name, request.Username, request.Password, request.Sex, request.Email, request.Status).Err()
 
@@ -21,10 +20,10 @@ func (s *storage) CreateUser(request request.NewUserRequest) error {
 	return nil
 }
 
-func (s *storage) GetUserByID(id uuid.UUID) (request.User, error) {
+func (s *storage) GetUserByID(id int) (request.User, error) {
 	var data request.User
 
-	statement := `SELECT id,username,email,password,name,sex,status FROM core_user WHERE id = $1;`
+	statement := `SELECT id,username,email,password,name,sex,status FROM core_users WHERE id = $1;`
 
 	err := s.db.QueryRow(statement, id).Scan(&data.ID, &data.Username, &data.Email, &data.Password, &data.Name, &data.Sex, &data.Status)
 
@@ -43,7 +42,7 @@ func (s *storage) GetUserByID(id uuid.UUID) (request.User, error) {
 func (s *storage) GetUserByEmail(email string) (request.User, error) {
 	var data request.User
 
-	statement := `SELECT id,username,email,password,status FROM core_user WHERE email = $1;`
+	statement := `SELECT id,username,email,password,status FROM core_users WHERE email = $1;`
 
 	err := s.db.QueryRow(statement, email).Scan(&data.ID, &data.Username, &data.Email, &data.Password, &data.Status)
 
@@ -62,7 +61,7 @@ func (s *storage) GetUserByEmail(email string) (request.User, error) {
 func (s *storage) GetUserByUsername(username string) (request.User, error) {
 	var data request.User
 
-	statement := `SELECT id,username,email,password,status FROM core_user WHERE username = $1;`
+	statement := `SELECT id,username,email,password,status FROM core_users WHERE username = $1;`
 
 	err := s.db.QueryRow(statement, username).Scan(&data.ID, &data.Username, &data.Email, &data.Password, &data.Status)
 
@@ -80,7 +79,7 @@ func (s *storage) GetUserByUsername(username string) (request.User, error) {
 
 func (s *storage) ListUser(page int, perPage int) (request.Users, error) {
 	offset := (page - 1) * perPage
-	statement := `SELECT id,name,username,sex,email,status,created_at,updated_at,count(*) OVER() AS total_count FROM core_user ORDER BY id DESC LIMIT $1 OFFSET $2`
+	statement := `SELECT id,name,username,sex,email,status,created_at,updated_at,count(*) OVER() AS total_count FROM core_users ORDER BY id DESC LIMIT $1 OFFSET $2`
 
 	rows, err := s.db.Query(statement, perPage, offset)
 
@@ -133,8 +132,8 @@ func (s *storage) ListUser(page int, perPage int) (request.Users, error) {
 	return res, nil
 }
 
-func (s *storage) UpdateUser(UserID uuid.UUID, r request.UpdateUserRequest) error {
-	statement := `UPDATE core_user SET name = $1, username = $2, sex = $3, email = $4,  updated_at = $5 WHERE id = $6`
+func (s *storage) UpdateUser(UserID int, r request.UpdateUserRequest) error {
+	statement := `UPDATE core_users SET name = $1, username = $2, sex = $3, email = $4,  updated_at = $5 WHERE id = $6`
 
 	err := s.db.QueryRow(statement, r.Name, r.Username, r.Sex, r.Email, r.UpdatedAt, UserID).Err()
 
@@ -146,8 +145,8 @@ func (s *storage) UpdateUser(UserID uuid.UUID, r request.UpdateUserRequest) erro
 	return nil
 }
 
-func (s *storage) UpdateUserPassword(UserID uuid.UUID, request request.UpdateUserPasswordRequest) error {
-	statement := `UPDATE core_user SET password = $1, updated_at = $2 WHERE id = $3`
+func (s *storage) UpdateUserPassword(UserID int, request request.UpdateUserPasswordRequest) error {
+	statement := `UPDATE core_users SET password = $1, updated_at = $2 WHERE id = $3`
 
 	err := s.db.QueryRow(statement, request.Password, request.UpdatedAt, UserID).Err()
 
@@ -159,8 +158,8 @@ func (s *storage) UpdateUserPassword(UserID uuid.UUID, request request.UpdateUse
 	return nil
 }
 
-func (s *storage) DeleteUser(UserID uuid.UUID) error {
-	statement := `DELETE FROM core_user WHERE id = $1`
+func (s *storage) DeleteUser(UserID int) error {
+	statement := `DELETE FROM core_users WHERE id = $1`
 
 	err := s.db.QueryRow(statement, UserID).Err()
 

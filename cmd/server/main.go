@@ -4,6 +4,8 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/joho/godotenv"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 	"os"
 
 	"hospital-api/pkg/api"
@@ -33,10 +35,17 @@ func run() error {
 		return err
 	}
 
-	// create storage dependency
-	storage := repository.NewStorage(db)
-	err = storage.RunMigrations(connectionString, db)
+	gormDM, err := setupGormDatabase(connectionString)
 	if err != nil {
+		return err
+	}
+
+	// create storage dependency
+	storage := repository.NewStorage(db, gormDM)
+	//if err = storage.RunMigrations(connectionString, db); err != nil {
+	//	return err
+	//}
+	if err = storage.RunGormMigrations(gormDM); err != nil {
 		return err
 	}
 
@@ -76,4 +85,12 @@ func setupDatabase(connString string) (*sql.DB, error) {
 		return nil, err
 	}
 	return db, nil
+}
+
+func setupGormDatabase(connString string) (*gorm.DB, error) {
+	gormDB, err := gorm.Open(postgres.Open(connString), &gorm.Config{})
+	if err != nil {
+		return nil, err
+	}
+	return gormDB, nil
 }
