@@ -1,4 +1,4 @@
-package gormMigrations
+package model
 
 type CoreRole struct {
 	ID         uint `gorm:"primaryKey"`

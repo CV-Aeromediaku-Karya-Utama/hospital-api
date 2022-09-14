@@ -10,7 +10,7 @@ import (
 	_ "github.com/lib/pq"
 	"gorm.io/gorm"
 	"hospital-api/pkg/api"
-	"hospital-api/pkg/repository/gormMigrations"
+	"hospital-api/pkg/repository/model"
 	"log"
 	"path/filepath"
 	"runtime"
@@ -62,13 +62,23 @@ func (s *storage) RunMigrations(connectionString string, db *sql.DB) error {
 }
 
 func (s *storage) RunGormMigrations(gormDB *gorm.DB) error {
-	err := gormDB.AutoMigrate(
-		&gormMigrations.CoreUser{},
-		&gormMigrations.CorePermission{},
-		&gormMigrations.CoreRole{},
-	)
-	if err != nil {
+	if err := gormDB.AutoMigrate(
+		&model.CorePermission{},
+		&model.CoreRole{},
+		&model.CoreUser{},
+	); err != nil {
 		return err
 	}
+
+	if err := gormDB.AutoMigrate(&model.CorePermission{}); err == nil && gormDB.Migrator().HasTable(&model.CorePermission{}) {
+		if err := gormDB.First(&model.CorePermission{}).Error; errors.Is(err, gorm.ErrRecordNotFound) {
+			permissions := []model.CorePermission{
+				{Name: "manage-user"},
+				{Name: "manage-role"},
+			}
+			gormDB.Create(&permissions)
+		}
+	}
+
 	return nil
 }

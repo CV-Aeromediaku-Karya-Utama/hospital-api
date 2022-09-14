@@ -1,5 +1,7 @@
 package request
 
+import "hospital-api/pkg/repository/model"
+
 type NewRoleRequest struct {
 	Name       string `json:"name"`
 	Permission []int  `json:"permission"`
@@ -12,7 +14,7 @@ type Role struct {
 }
 
 type Roles struct {
-	Role       []Role            `json:"roles"`
+	Roles      []model.CoreRole  `json:"roles"`
 	Pagination PaginationRequest `json:"pagination"`
 }
 

@@ -10,7 +10,7 @@ import (
 func (s *storage) GetPermissionById(PermissionID int) (request.Permission, error) {
 	var corePermission request.Permission
 
-	statement := `SELECT * FROM core_permission WHERE id = $1`
+	statement := `SELECT * FROM core_permissions WHERE id = $1`
 
 	err := s.db.QueryRow(statement, PermissionID).Scan(&corePermission.ID, &corePermission.Name)
 
@@ -29,7 +29,7 @@ func (s *storage) GetPermissionById(PermissionID int) (request.Permission, error
 func (s *storage) ListPermission(page int, perPage int) (request.Permissions, error) {
 	offset := (page - 1) * perPage
 
-	statement := `SELECT id, "name", count(*) OVER() AS total_count FROM core_permission ORDER BY id DESC LIMIT $1 OFFSET $2`
+	statement := `SELECT id, "name", count(*) OVER() AS total_count FROM core_permissions ORDER BY id DESC LIMIT $1 OFFSET $2`
 	rows, err := s.db.Query(statement, perPage, offset)
 
 	if err != nil {
