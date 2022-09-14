@@ -21,7 +21,7 @@ type RoleService interface {
 type RoleRepository interface {
 	CreateRole(ctx context.Context, r request.NewRoleRequest) error
 	GetRoleById(RoleID int) (request.Role, error)
-	ListRole(page int, perPage int) (request.Roles, error)
+	ListRole(ctx context.Context, page int, perPage int) (request.Roles, error)
 	UpdateRole(RoleID int, role request.UpdateRoleRequest) (request.UpdateRoleRequest, error)
 	DeleteRole(RoleID int) error
 	BatchDeleteRole(request request.BatchDeleteRoleRequest) error
@@ -75,7 +75,8 @@ func (s *roleService) Detail(RoleID int) (request.Role, error) {
 }
 
 func (s *roleService) List(page int, perPage int) (request.Roles, error) {
-	roles, err := s.storage.ListRole(page, perPage)
+	ctx := context.TODO()
+	roles, err := s.storage.ListRole(ctx, page, perPage)
 	if err != nil {
 		return request.Roles{}, err
 	}
