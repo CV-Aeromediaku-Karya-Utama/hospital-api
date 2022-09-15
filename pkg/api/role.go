@@ -1,53 +1,86 @@
 package api
 
 import (
-	"context"
 	"errors"
-	"hospital-api/pkg/api/request"
+	"hospital-api/pkg/repository/model"
 	"strings"
 )
 
 // RoleService contains the methods of the user service
 type RoleService interface {
-	New(r request.NewRoleRequest) error
-	List(page int, perPage int) (request.Roles, error)
-	Update(RoleID int, role request.UpdateRoleRequest) (request.UpdateRoleRequest, error)
+	Detail(RoleID int) (model.CoreRole, error)
+	List(page int, perPage int) (model.CoreRoles, error)
+	New(request model.NewCoreRole) error
+	Update(RoleID int, role model.CoreRole) error
 	Delete(RoleID int) error
-	BatchDelete(request request.BatchDeleteRoleRequest) error
-	Detail(RoleID int) (request.Role, error)
+	BatchDelete(request model.BatchDeleteRole) error
 }
 
 // RoleRepository is what lets our service do db operations without knowing anything about the implementation
 type RoleRepository interface {
-	CreateRole(ctx context.Context, r request.NewRoleRequest) error
-	GetRoleById(RoleID int) (request.Role, error)
-	ListRole(ctx context.Context, page int, perPage int) (request.Roles, error)
-	UpdateRole(RoleID int, role request.UpdateRoleRequest) (request.UpdateRoleRequest, error)
+	GetRoleById(RoleID int) (model.CoreRole, error)
+	ListRole(page int, perPage int) (model.CoreRoles, error)
+	CreateRole(request model.NewCoreRole) error
+	UpdateRole(RoleID int, role model.CoreRole) error
 	DeleteRole(RoleID int) error
-	BatchDeleteRole(request request.BatchDeleteRoleRequest) error
+	BatchDeleteRole(request model.BatchDeleteRole) error
 }
 
 type roleService struct {
 	storage RoleRepository
 }
 
-func (s *roleService) Update(RoleID int, r request.UpdateRoleRequest) (request.UpdateRoleRequest, error) {
+func (s *roleService) Detail(RoleID int) (model.CoreRole, error) {
+	item, err := s.storage.GetRoleById(RoleID)
+	if err != nil {
+		return model.CoreRole{}, errors.New("role id not found")
+	}
+	return item, nil
+}
+
+func (s *roleService) List(page int, perPage int) (model.CoreRoles, error) {
+	roles, err := s.storage.ListRole(page, perPage)
+	if err != nil {
+		return model.CoreRoles{}, err
+	}
+	return roles, nil
+}
+
+func (s *roleService) New(request model.NewCoreRole) error {
+	if request.Name == "" {
+		return errors.New("role service - name required")
+	}
+	if request.Permission == nil {
+		return errors.New("role service - Permission required")
+	}
+	request.Name = strings.ToUpper(request.Name)
+
+	err := s.storage.CreateRole(request)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (s *roleService) Update(RoleID int, r model.CoreRole) error {
 	if r.Name == "" {
-		return r, errors.New("role service - name required")
+		return errors.New("role service - name required")
 	}
 	r.Name = strings.ToUpper(r.Name)
 
 	_, err := s.storage.GetRoleById(RoleID)
 	if err != nil {
-		return request.UpdateRoleRequest{}, err
+		return err
 	}
 
-	role, err := s.storage.UpdateRole(RoleID, r)
+	err = s.storage.UpdateRole(RoleID, r)
 	if err != nil {
-		return request.UpdateRoleRequest{}, err
+		return err
 	}
 
-	return role, nil
+	return nil
 }
 
 func (s *roleService) Delete(RoleID int) error {
@@ -58,47 +91,11 @@ func (s *roleService) Delete(RoleID int) error {
 	return nil
 }
 
-func (s *roleService) BatchDelete(request request.BatchDeleteRoleRequest) error {
+func (s *roleService) BatchDelete(request model.BatchDeleteRole) error {
 	err := s.storage.BatchDeleteRole(request)
 	if err != nil {
 		return err
 	}
-	return nil
-}
-
-func (s *roleService) Detail(RoleID int) (request.Role, error) {
-	item, err := s.storage.GetRoleById(RoleID)
-	if err != nil {
-		return request.Role{}, errors.New("role id not found")
-	}
-	return item, nil
-}
-
-func (s *roleService) List(page int, perPage int) (request.Roles, error) {
-	ctx := context.TODO()
-	roles, err := s.storage.ListRole(ctx, page, perPage)
-	if err != nil {
-		return request.Roles{}, err
-	}
-	return roles, nil
-}
-
-func (s *roleService) New(r request.NewRoleRequest) error {
-	if r.Name == "" {
-		return errors.New("role service - name required")
-	}
-	if r.Permission == nil {
-		return errors.New("role service - name required")
-	}
-	r.Name = strings.ToUpper(r.Name)
-
-	ctx := context.Background()
-	err := s.storage.CreateRole(ctx, r)
-
-	if err != nil {
-		return err
-	}
-
 	return nil
 }
 

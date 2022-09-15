@@ -4,7 +4,7 @@ import (
 	"errors"
 	"github.com/gin-gonic/gin"
 	"hospital-api/pkg/api/helper"
-	"hospital-api/pkg/api/request"
+	"hospital-api/pkg/repository/model"
 	"log"
 	"net/http"
 	"strconv"
@@ -14,7 +14,7 @@ func (s *Server) CreateRole() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.Header("Content-Type", "application/json")
 
-		var newData request.NewRoleRequest
+		var newData model.NewCoreRole
 
 		err := c.ShouldBindJSON(&newData)
 		if err != nil {
@@ -86,7 +86,7 @@ func (s *Server) UpdateRole() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.Header("Content-Type", "application/json")
 
-		var Data request.UpdateRoleRequest
+		var Data model.CoreRole
 		err := c.ShouldBindJSON(&Data)
 		if err != nil {
 			log.Printf("handler error: %v", err)
@@ -100,14 +100,14 @@ func (s *Server) UpdateRole() gin.HandlerFunc {
 			return
 		}
 
-		response, err := s.roleService.Update(id, Data)
+		err = s.roleService.Update(id, Data)
 		if err != nil {
 			log.Printf("service error: %v", err)
 			c.JSON(http.StatusInternalServerError, errors.New("failed to update"))
 			return
 		}
 
-		c.JSON(http.StatusOK, response)
+		c.JSON(http.StatusOK, nil)
 	}
 }
 
@@ -137,7 +137,7 @@ func (s *Server) BatchDeleteRole() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.Header("Content-Type", "application/json")
 
-		var Data request.BatchDeleteRoleRequest
+		var Data model.BatchDeleteRole
 		err := c.ShouldBindJSON(&Data)
 		if err != nil {
 			log.Printf("handler error: %v", err)

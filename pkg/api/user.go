@@ -2,30 +2,30 @@ package api
 
 import (
 	"errors"
-	"hospital-api/pkg/api/request"
+	"hospital-api/pkg/repository/model"
 	"strings"
 	"time"
 )
 
 // UserService contains the methods of the user service
 type UserService interface {
-	New(user request.NewUserRequest) error
-	List(page int, perPage int) (request.Users, error)
-	Update(UserID int, request request.UpdateUserRequest) error
-	UpdatePassword(UserID int, request request.UpdateUserPasswordRequest) error
+	New(user model.NewCoreUser) error
+	List(page int, perPage int) (model.CoreUsers, error)
+	Update(UserID int, request model.UpdateCoreUser) error
+	UpdatePassword(UserID int, request model.UpdateCoreUserPassword) error
 	Delete(UserID int) error
-	Detail(UserID int) (request.User, error)
+	Detail(UserID int) (model.CoreUser, error)
 }
 
 // UserRepository is what lets our service do db operations without knowing anything about the implementation
 type UserRepository interface {
 	HashPassword(password string) (string, error)
 	CheckPasswordHash(password, hash string) bool
-	CreateUser(request.NewUserRequest) error
-	GetUserByID(id int) (request.User, error)
-	ListUser(page int, perPage int) (request.Users, error)
-	UpdateUser(UserUD int, request request.UpdateUserRequest) error
-	UpdateUserPassword(UserID int, request request.UpdateUserPasswordRequest) error
+	CreateUser(model.NewCoreUser) error
+	GetUserByID(id int) (model.CoreUser, error)
+	ListUser(page int, perPage int) (model.CoreUsers, error)
+	UpdateUser(UserUD int, request model.UpdateCoreUser) error
+	UpdateUserPassword(UserID int, request model.UpdateCoreUserPassword) error
 	DeleteUser(UserID int) error
 }
 
@@ -33,23 +33,23 @@ type userService struct {
 	storage UserRepository
 }
 
-func (u *userService) Detail(UserID int) (request.User, error) {
+func (u *userService) Detail(UserID int) (model.CoreUser, error) {
 	item, err := u.storage.GetUserByID(UserID)
 	if err != nil {
-		return request.User{}, errors.New("user id not found")
+		return model.CoreUser{}, errors.New("user id not found")
 	}
 	return item, nil
 }
 
-func (u *userService) List(page int, perPage int) (request.Users, error) {
+func (u *userService) List(page int, perPage int) (model.CoreUsers, error) {
 	data, err := u.storage.ListUser(page, perPage)
 	if err != nil {
-		return request.Users{}, err
+		return model.CoreUsers{}, err
 	}
 	return data, nil
 }
 
-func (u *userService) Update(UserID int, request request.UpdateUserRequest) error {
+func (u *userService) Update(UserID int, request model.UpdateCoreUser) error {
 	if request.Name == "" {
 		return errors.New("user service - name required")
 	}
@@ -71,7 +71,7 @@ func (u *userService) Update(UserID int, request request.UpdateUserRequest) erro
 	return nil
 }
 
-func (u *userService) UpdatePassword(UserID int, r request.UpdateUserPasswordRequest) error {
+func (u *userService) UpdatePassword(UserID int, r model.UpdateCoreUserPassword) error {
 	if r.Password == "" {
 		return errors.New("user service - password required")
 	}
@@ -91,7 +91,7 @@ func (u *userService) UpdatePassword(UserID int, r request.UpdateUserPasswordReq
 	}
 
 	hash, err := u.storage.HashPassword(r.Password)
-	newUser := request.UpdateUserPasswordRequest{
+	newUser := model.UpdateCoreUserPassword{
 		Password: hash,
 	}
 
@@ -110,7 +110,7 @@ func (u *userService) Delete(UserID int) error {
 	return nil
 }
 
-func (u *userService) New(user request.NewUserRequest) error {
+func (u *userService) New(user model.NewCoreUser) error {
 	if user.Email == "" {
 		return errors.New("user service - email required")
 	}
@@ -127,7 +127,7 @@ func (u *userService) New(user request.NewUserRequest) error {
 		return err
 	}
 
-	newUser := request.NewUserRequest{
+	newUser := model.NewCoreUser{
 		Name:     user.Name,
 		Username: user.Username,
 		Password: hash,

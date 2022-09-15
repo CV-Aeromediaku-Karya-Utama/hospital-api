@@ -2,7 +2,7 @@ package app
 
 import (
 	"github.com/gin-gonic/gin"
-	"hospital-api/pkg/api/request"
+	"hospital-api/pkg/api/helper"
 	"log"
 	"net/http"
 )
@@ -24,7 +24,7 @@ func (s *Server) Login() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.Header("Content-Type", "application/json")
 
-		var input request.LoginInput
+		var input helper.LoginInput
 
 		if err := c.ShouldBindJSON(&input); err != nil {
 			log.Printf("handler error: %v", err)

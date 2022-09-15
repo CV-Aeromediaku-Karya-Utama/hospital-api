@@ -1,13 +1,14 @@
 package repository
 
 import (
-	"database/sql"
-	"fmt"
-	"hospital-api/pkg/api/request"
+	"errors"
+	"gorm.io/gorm"
+	"hospital-api/pkg/api/helper"
+	"hospital-api/pkg/repository/model"
 	"log"
 )
 
-func (s *storage) CreateUser(request request.NewUserRequest) error {
+func (s *storage) CreateUser(request model.NewCoreUser) error {
 	statement := `INSERT INTO core_users (name, username, password, sex, email, status) VALUES ($1, $2, $3, $4, $5, $6);`
 
 	err := s.db.QueryRow(statement, request.Name, request.Username, request.Password, request.Sex, request.Email, request.Status).Err()
@@ -20,119 +21,59 @@ func (s *storage) CreateUser(request request.NewUserRequest) error {
 	return nil
 }
 
-func (s *storage) GetUserByID(id int) (request.User, error) {
-	var data request.User
-
-	statement := `SELECT id,username,email,password,name,sex,status FROM core_users WHERE id = $1;`
-
-	err := s.db.QueryRow(statement, id).Scan(&data.ID, &data.Username, &data.Email, &data.Password, &data.Name, &data.Sex, &data.Status)
-
-	if err == sql.ErrNoRows {
-		return request.User{}, fmt.Errorf("unknown value : %d", id)
+func (s *storage) GetUserByID(id int) (model.CoreUser, error) {
+	var user model.CoreUser
+	if err := s.gorm.Preload("Role").
+		Preload("Role.Permission").
+		Preload("Permission").
+		First(&user, id).Error; errors.Is(err, gorm.ErrRecordNotFound) {
+		return model.CoreUser{}, err
 	}
-
-	if err != nil {
-		log.Printf("this was the error: %v", err.Error())
-		return request.User{}, err
-	}
-
-	return data, nil
+	return user, nil
 }
 
-func (s *storage) GetUserByEmail(email string) (request.User, error) {
-	var data request.User
-
-	statement := `SELECT id,username,email,password,status FROM core_users WHERE email = $1;`
-
-	err := s.db.QueryRow(statement, email).Scan(&data.ID, &data.Username, &data.Email, &data.Password, &data.Status)
-
-	if err == sql.ErrNoRows {
-		return request.User{}, fmt.Errorf("unknown value : %s", email)
+func (s *storage) GetUserByEmail(email string) (model.CoreUser, error) {
+	var user model.CoreUser
+	if err := s.gorm.Preload("Role").
+		Preload("Role.Permission").
+		Preload("Permission").
+		Where("email = ?", email).
+		First(&user).Error; errors.Is(err, gorm.ErrRecordNotFound) {
+		return model.CoreUser{}, err
 	}
 
-	if err != nil {
-		log.Printf("this was the error: %v", err.Error())
-		return request.User{}, err
-	}
-
-	return data, nil
+	return user, nil
 }
 
-func (s *storage) GetUserByUsername(username string) (request.User, error) {
-	var data request.User
-
-	statement := `SELECT id,username,email,password,status FROM core_users WHERE username = $1;`
-
-	err := s.db.QueryRow(statement, username).Scan(&data.ID, &data.Username, &data.Email, &data.Password, &data.Status)
-
-	if err == sql.ErrNoRows {
-		return request.User{}, fmt.Errorf("unknown value : %s", username)
+func (s *storage) GetUserByUsername(username string) (model.CoreUser, error) {
+	var user model.CoreUser
+	if err := s.gorm.Preload("Role").
+		Preload("Role.Permission").
+		Preload("Permission").
+		Where("username = ?", username).
+		First(&user).Error; errors.Is(err, gorm.ErrRecordNotFound) {
+		return model.CoreUser{}, err
 	}
 
-	if err != nil {
-		log.Printf("this was the error: %v", err.Error())
-		return request.User{}, err
-	}
-
-	return data, nil
+	return user, nil
 }
 
-func (s *storage) ListUser(page int, perPage int) (request.Users, error) {
+func (s *storage) ListUser(page int, perPage int) (model.CoreUsers, error) {
 	offset := (page - 1) * perPage
-	statement := `SELECT id,name,username,sex,email,status,created_at,updated_at,count(*) OVER() AS total_count FROM core_users ORDER BY id DESC LIMIT $1 OFFSET $2`
-
-	rows, err := s.db.Query(statement, perPage, offset)
-
-	if err != nil {
-		log.Printf("this was the error: %v", err)
-		return request.Users{}, err
-	}
-	defer rows.Close()
-
-	// slice to hold data from returned rows.
-	var data []request.User
-	var total int
-	// Loop through rows, using Scan to assign column data to struct fields.
-	for rows.Next() {
-		var item request.User
-
-		if err := rows.Scan(
-			&item.ID,
-			&item.Name,
-			&item.Username,
-			&item.Sex,
-			&item.Email,
-			&item.Status,
-			&item.CreatedAt,
-			&item.UpdatedAt,
-			&total,
-		); err != nil {
-			return request.Users{}, err
-		}
-		data = append(data, request.User{
-			ID:        item.ID,
-			Name:      item.Name,
-			Username:  item.Username,
-			Sex:       item.Sex,
-			Email:     item.Email,
-			Status:    item.Status,
-			CreatedAt: item.CreatedAt,
-			UpdatedAt: item.UpdatedAt,
-		})
-	}
-	pagination := request.PaginationRequest{
-		Page:    page,
-		PerPage: perPage,
-		Total:   total,
-	}
-	res := request.Users{
-		User:       data,
-		Pagination: pagination,
+	var users []model.CoreUser
+	s.gorm.Preload("Role").Preload("Role.Permission").Preload("Permission").Find(&users).Select("*")
+	res := model.CoreUsers{
+		User: users,
+		Pagination: helper.PaginationRequest{
+			Page:    page,
+			PerPage: perPage,
+			Total:   offset,
+		},
 	}
 	return res, nil
 }
 
-func (s *storage) UpdateUser(UserID int, r request.UpdateUserRequest) error {
+func (s *storage) UpdateUser(UserID int, r model.UpdateCoreUser) error {
 	statement := `UPDATE core_users SET name = $1, username = $2, sex = $3, email = $4,  updated_at = $5 WHERE id = $6`
 
 	err := s.db.QueryRow(statement, r.Name, r.Username, r.Sex, r.Email, r.UpdatedAt, UserID).Err()
@@ -145,7 +86,7 @@ func (s *storage) UpdateUser(UserID int, r request.UpdateUserRequest) error {
 	return nil
 }
 
-func (s *storage) UpdateUserPassword(UserID int, request request.UpdateUserPasswordRequest) error {
+func (s *storage) UpdateUserPassword(UserID int, request model.UpdateCoreUserPassword) error {
 	statement := `UPDATE core_users SET password = $1, updated_at = $2 WHERE id = $3`
 
 	err := s.db.QueryRow(statement, request.Password, request.UpdatedAt, UserID).Err()
@@ -159,14 +100,11 @@ func (s *storage) UpdateUserPassword(UserID int, request request.UpdateUserPassw
 }
 
 func (s *storage) DeleteUser(UserID int) error {
-	statement := `DELETE FROM core_users WHERE id = $1`
-
-	err := s.db.QueryRow(statement, UserID).Err()
-
-	if err != nil {
-		log.Printf("this was the error: %v", err)
+	if err := s.gorm.Select("Permission").
+		Select("Role").
+		Delete(&model.CoreRole{ID: uint(UserID)}).Error; err != nil {
+		log.Printf("this was the error: %v", err.Error())
 		return err
 	}
-
 	return nil
 }

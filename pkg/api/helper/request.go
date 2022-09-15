@@ -1,4 +1,9 @@
-package request
+package helper
+
+type LoginInput struct {
+	Identity string `json:"identity"`
+	Password string `json:"password"`
+}
 
 type PaginationRequest struct {
 	Page    int `json:"page"`

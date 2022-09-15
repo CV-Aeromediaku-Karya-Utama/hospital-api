@@ -1,29 +1,61 @@
 package repository
 
 import (
-	"context"
 	"database/sql"
+	"errors"
 	"fmt"
-	"hospital-api/pkg/api/request"
+	"hospital-api/pkg/api/helper"
 	"hospital-api/pkg/repository/model"
 	"log"
 	"strconv"
 	"strings"
 )
 
-func (s *storage) CreateRole(ctx context.Context, r request.NewRoleRequest) error {
+func (s *storage) GetRoleById(RoleID int) (model.CoreRole, error) {
+	var role model.CoreRole
+	if err := s.gorm.Preload("Permission").Find(&role, RoleID).Select("*").Error; err != nil {
+		log.Printf("this was the error: %v", err)
+		return model.CoreRole{}, err
+	}
+	if role.ID == 0 {
+		return model.CoreRole{}, errors.New("record not found error")
+	}
+	return role, nil
+}
+
+func (s *storage) ListRole(page int, perPage int) (model.CoreRoles, error) {
+	offset := (page - 1) * perPage
+	var roles []model.CoreRole
+	s.gorm.Preload("Permission").Find(&roles).Select("*")
+	res := model.CoreRoles{
+		Roles: roles,
+		Pagination: helper.PaginationRequest{
+			Page:    page,
+			PerPage: perPage,
+			Total:   offset,
+		},
+	}
+	return res, nil
+}
+
+func (s *storage) CreateRole(request model.NewCoreRole) error {
 	var ID int
-	tx, err := s.db.BeginTx(ctx, nil)
+	tx, err := s.db.Begin()
 	if err != nil {
 		return fmt.Errorf("repo err - %v", err)
 	}
-	defer tx.Rollback()
-	err = tx.QueryRow("INSERT INTO core_roles (name) VALUES ($1) RETURNING id;", r.Name).Scan(&ID)
+	defer func(tx *sql.Tx) {
+		err := tx.Rollback()
+		if err != nil {
+			return
+		}
+	}(tx)
+	err = tx.QueryRow("INSERT INTO core_roles (name) VALUES ($1) RETURNING id;", request.Name).Scan(&ID)
 	if err != nil {
 		return fmt.Errorf("repo err - %v", err)
 	}
-	for _, v := range r.Permission {
-		_, err = tx.ExecContext(ctx, "INSERT INTO core_roles_permissions (core_role_id, core_permission_id) VALUES ($1, $2);", ID, v)
+	for _, v := range request.Permission {
+		_, err = tx.Exec("INSERT INTO core_roles_permissions (core_role_id, core_permission_id) VALUES ($1, $2);", ID, v)
 		if err != nil {
 			return fmt.Errorf("repo err - %v", err)
 		}
@@ -36,67 +68,23 @@ func (s *storage) CreateRole(ctx context.Context, r request.NewRoleRequest) erro
 	return nil
 }
 
-func (s *storage) ListRole(ctx context.Context, page int, perPage int) (request.Roles, error) {
-	offset := (page - 1) * perPage
-	var roles []model.CoreRole
-	s.gorm.Preload("Permission").Find(&roles).Select("*")
-	res := request.Roles{
-		Roles: roles,
-		Pagination: request.PaginationRequest{
-			Page:    page,
-			PerPage: perPage,
-			Total:   offset,
-		},
-	}
-	return res, nil
-}
-
-func (s *storage) GetRoleById(coreRoleID int) (request.Role, error) {
-	var coreRole request.Role
-
-	statement := `SELECT * FROM core_roles WHERE id = $1`
-
-	err := s.db.QueryRow(statement, coreRoleID).Scan(&coreRole.ID, &coreRole.Name)
-
-	if err == sql.ErrNoRows {
-		return request.Role{}, fmt.Errorf("unknown value : %d", coreRoleID)
-	}
-
-	if err != nil {
-		log.Printf("this was the error: %v", err.Error())
-		return request.Role{}, err
-	}
-
-	return coreRole, nil
-}
-
-func (s *storage) UpdateRole(RoleID int, coreRole request.UpdateRoleRequest) (request.UpdateRoleRequest, error) {
-	statement := `UPDATE core_roles SET name = $1 WHERE id = $2`
-
-	err := s.db.QueryRow(statement, coreRole.Name, RoleID).Err()
-
-	if err != nil {
-		log.Printf("this was the error: %v", err)
-		return request.UpdateRoleRequest{}, err
-	}
-
-	return coreRole, err
-}
-
-func (s *storage) DeleteRole(RoleID int) error {
-	statement := `DELETE FROM core_roles WHERE id = $1`
-
-	err := s.db.QueryRow(statement, RoleID).Err()
-
-	if err != nil {
+func (s *storage) UpdateRole(RoleID int, request model.CoreRole) error {
+	if err := s.gorm.Model(&model.CoreRole{}).Where("id = ?", RoleID).Update("name", request.Name).Error; err != nil {
 		log.Printf("this was the error: %v", err)
 		return err
 	}
-
 	return nil
 }
 
-func (s *storage) BatchDeleteRole(request request.BatchDeleteRoleRequest) error {
+func (s *storage) DeleteRole(RoleID int) error {
+	if err := s.gorm.Select("Permission").Delete(&model.CoreRole{ID: uint(RoleID)}).Error; err != nil {
+		log.Printf("this was the error: %v", err.Error())
+		return err
+	}
+	return nil
+}
+
+func (s *storage) BatchDeleteRole(request model.BatchDeleteRole) error {
 	statement := `DELETE FROM core_roles WHERE id = ANY($1::int[])`
 
 	var ids []string

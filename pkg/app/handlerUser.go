@@ -3,7 +3,7 @@ package app
 import (
 	"errors"
 	"github.com/gin-gonic/gin"
-	"hospital-api/pkg/api/request"
+	"hospital-api/pkg/repository/model"
 	"log"
 	"net/http"
 	"strconv"
@@ -17,7 +17,7 @@ func (s *Server) CreateUser() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.Header("Content-Type", "application/json")
 
-		var newUser request.NewUserRequest
+		var newUser model.NewCoreUser
 
 		err := c.ShouldBindJSON(&newUser)
 		if err != nil {
@@ -101,7 +101,7 @@ func (s *Server) UserDetail() gin.HandlerFunc {
 func (s *Server) UpdateUser() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.Header("Content-Type", "application/json")
-		var Data request.UpdateUserRequest
+		var Data model.UpdateCoreUser
 
 		//id := uuid.Must(uuid.FromString(c.Param("id")))
 		id, _ := strconv.Atoi(c.Param("id"))
@@ -131,7 +131,7 @@ func (s *Server) UpdateUser() gin.HandlerFunc {
 func (s *Server) UpdateUserPassword() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.Header("Content-Type", "application/json")
-		var Data request.UpdateUserPasswordRequest
+		var Data model.UpdateCoreUserPassword
 
 		//id := uuid.Must(uuid.FromString(c.Param("id")))
 		id, _ := strconv.Atoi(c.Param("id"))
