@@ -23,6 +23,8 @@ func (s *Server) Routes() *gin.Engine {
 			user.GET("/detail", s.UserDetail())
 			user.PUT("/update/:id", s.UpdateUser())
 			user.PUT("/update_password/:id", s.UpdateUserPassword())
+			user.PUT("/assign_permission/:id", s.AssignUserPermission())
+			user.PUT("/assign_role/:id", s.AssignUserRole())
 			user.DELETE("/delete/:id", s.DeleteUser())
 		}
 		permission := v1.Group("/permission")

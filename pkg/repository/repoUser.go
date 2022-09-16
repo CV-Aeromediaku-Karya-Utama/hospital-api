@@ -8,6 +8,26 @@ import (
 	"log"
 )
 
+func (s *storage) AssignPermission(UserID int, request model.CoreUser) error {
+	var user model.CoreUser
+	s.gorm.First(&user, UserID)
+	err := s.gorm.Model(&user).Association("Permission").Replace(request.Permission)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (s *storage) AssignRole(UserID int, request model.CoreUser) error {
+	var user model.CoreUser
+	s.gorm.First(&user, UserID)
+	err := s.gorm.Model(&user).Association("Role").Replace(request.Role)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func (s *storage) CreateUser(request model.NewCoreUser) error {
 	statement := `INSERT INTO core_users (name, username, password, sex, email, status) VALUES ($1, $2, $3, $4, $5, $6);`
 

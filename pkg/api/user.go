@@ -15,6 +15,8 @@ type UserService interface {
 	UpdatePassword(UserID int, request model.UpdateCoreUserPassword) error
 	Delete(UserID int) error
 	Detail(UserID int) (model.CoreUser, error)
+	AssignPermission(UserID int, request model.CoreUser) error
+	AssignRole(UserID int, request model.CoreUser) error
 }
 
 // UserRepository is what lets our service do db operations without knowing anything about the implementation
@@ -27,6 +29,8 @@ type UserRepository interface {
 	UpdateUser(UserUD int, request model.UpdateCoreUser) error
 	UpdateUserPassword(UserID int, request model.UpdateCoreUserPassword) error
 	DeleteUser(UserID int) error
+	AssignPermission(UserID int, request model.CoreUser) error
+	AssignRole(UserID int, request model.CoreUser) error
 }
 
 type userService struct {
@@ -142,6 +146,22 @@ func (u *userService) New(user model.NewCoreUser) error {
 		return err
 	}
 
+	return nil
+}
+
+func (u *userService) AssignPermission(UserID int, request model.CoreUser) error {
+	err := u.storage.AssignPermission(UserID, request)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (u *userService) AssignRole(UserID int, request model.CoreUser) error {
+	err := u.storage.AssignRole(UserID, request)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 

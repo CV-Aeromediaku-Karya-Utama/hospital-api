@@ -3,6 +3,7 @@ package app
 import (
 	"errors"
 	"github.com/gin-gonic/gin"
+	"hospital-api/pkg/api/helper"
 	"hospital-api/pkg/repository/model"
 	"log"
 	"net/http"
@@ -47,13 +48,13 @@ func (s *Server) ListUser() gin.HandlerFunc {
 		pageStr := c.DefaultQuery("page", "1")
 		page, err := strconv.Atoi(pageStr)
 		if err != nil {
-			c.AbortWithStatus(http.StatusBadRequest)
+			c.AbortWithStatusJSON(helper.ErrorResponse(err))
 			return
 		}
 		perPageStr := c.DefaultQuery("per_page", "10")
 		perPage, err := strconv.Atoi(perPageStr)
 		if err != nil {
-			c.AbortWithStatus(http.StatusBadRequest)
+			c.AbortWithStatusJSON(helper.ErrorResponse(err))
 			return
 		}
 
@@ -64,12 +65,7 @@ func (s *Server) ListUser() gin.HandlerFunc {
 			return
 		}
 
-		response := map[string]any{
-			"status": "success",
-			"data":   data,
-		}
-
-		c.JSON(http.StatusOK, response)
+		c.JSON(helper.SuccessResponse(data))
 	}
 }
 
@@ -84,17 +80,11 @@ func (s *Server) UserDetail() gin.HandlerFunc {
 		id, _ := strconv.Atoi(queryParams.ID)
 		data, err := s.userService.Detail(id)
 		if err != nil {
-			log.Printf("service error: %v", err)
 			c.JSON(http.StatusInternalServerError, err)
 			return
 		}
 
-		response := map[string]any{
-			"status": "success",
-			"data":   data,
-		}
-
-		c.JSON(http.StatusOK, response)
+		c.JSON(helper.SuccessResponse(data))
 	}
 }
 
@@ -120,11 +110,7 @@ func (s *Server) UpdateUser() gin.HandlerFunc {
 			return
 		}
 
-		response := map[string]string{
-			"status": "success",
-			"data":   "user updated",
-		}
-		c.JSON(http.StatusOK, response)
+		c.JSON(helper.SuccessResponse("user updated"))
 	}
 }
 
@@ -150,11 +136,57 @@ func (s *Server) UpdateUserPassword() gin.HandlerFunc {
 			return
 		}
 
-		response := map[string]string{
-			"status": "success",
-			"data":   "user password updated",
+		c.JSON(helper.SuccessResponse("user password updated"))
+	}
+}
+
+func (s *Server) AssignUserRole() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.Header("Content-Type", "application/json")
+		var Data model.CoreUser
+
+		//id := uuid.Must(uuid.FromString(c.Param("id")))
+		id, _ := strconv.Atoi(c.Param("id"))
+
+		err := c.ShouldBindJSON(&Data)
+		if err != nil {
+			c.AbortWithStatusJSON(helper.ErrorResponse(err))
+			return
 		}
-		c.JSON(http.StatusOK, response)
+
+		err = s.userService.AssignRole(id, Data)
+		if err != nil {
+			log.Printf("service error: %v", err)
+			c.JSON(http.StatusInternalServerError, err)
+			return
+		}
+
+		c.JSON(helper.SuccessResponse("user password updated"))
+	}
+}
+
+func (s *Server) AssignUserPermission() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.Header("Content-Type", "application/json")
+		var Data model.CoreUser
+
+		//id := uuid.Must(uuid.FromString(c.Param("id")))
+		id, _ := strconv.Atoi(c.Param("id"))
+
+		err := c.ShouldBindJSON(&Data)
+		if err != nil {
+			c.AbortWithStatusJSON(helper.ErrorResponse(err))
+			return
+		}
+
+		err = s.userService.AssignPermission(id, Data)
+		if err != nil {
+			log.Printf("service error: %v", err)
+			c.JSON(http.StatusInternalServerError, err)
+			return
+		}
+
+		c.JSON(helper.SuccessResponse("user password updated"))
 	}
 }
 
@@ -172,11 +204,6 @@ func (s *Server) DeleteUser() gin.HandlerFunc {
 			return
 		}
 
-		response := map[string]any{
-			"status": "success",
-			"data":   "user deleted",
-		}
-
-		c.JSON(http.StatusOK, response)
+		c.JSON(helper.SuccessResponse("user deleted"))
 	}
 }

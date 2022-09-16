@@ -10,3 +10,7 @@ type PaginationRequest struct {
 	PerPage int `json:"per-page"`
 	Total   int `json:"total"`
 }
+
+type Ids struct {
+	ID []int `json:"id"`
+}
