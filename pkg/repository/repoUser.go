@@ -8,20 +8,20 @@ import (
 	"log"
 )
 
-func (s *storage) AssignPermissionToUser(UserID int, request model.CoreUser) error {
+func (s *storage) AssignPermissionToUser(UserID int, request []model.CorePermission) error {
 	var user model.CoreUser
 	s.gorm.First(&user, UserID)
-	err := s.gorm.Model(&user).Association("Permission").Replace(request.Permission)
+	err := s.gorm.Model(&user).Association("Permission").Replace(request)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (s *storage) AssignRoleToUser(UserID int, request model.CoreUser) error {
+func (s *storage) AssignRoleToUser(UserID int, request []model.CoreRole) error {
 	var user model.CoreUser
 	s.gorm.First(&user, UserID)
-	err := s.gorm.Model(&user).Association("Role").Replace(request.Role)
+	err := s.gorm.Model(&user).Association("Role").Replace(request)
 	if err != nil {
 		return err
 	}

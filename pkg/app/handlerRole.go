@@ -86,7 +86,7 @@ func (s *Server) ListRole() gin.HandlerFunc {
 func (s *Server) AssignRolePermission() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.Header("Content-Type", "application/json")
-		var Data model.CoreRole
+		var Data model.AssignPermissionToRole
 
 		//id := uuid.Must(uuid.FromString(c.Param("id")))
 		id, _ := strconv.Atoi(c.Param("id"))

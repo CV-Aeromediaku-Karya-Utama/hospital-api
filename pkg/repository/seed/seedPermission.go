@@ -12,6 +12,7 @@ func SeedPermission(gormDB *gorm.DB) {
 			permissions := []model.CorePermission{
 				{Name: "manage-user"},
 				{Name: "manage-role"},
+				{Name: "manage-permission"},
 			}
 			gormDB.Create(&permissions)
 		}

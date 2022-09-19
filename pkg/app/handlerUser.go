@@ -136,7 +136,7 @@ func (s *Server) UpdateUserPassword() gin.HandlerFunc {
 func (s *Server) AssignUserRole() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.Header("Content-Type", "application/json")
-		var Data model.CoreUser
+		var Data model.AssignRoleToUser
 
 		//id := uuid.Must(uuid.FromString(c.Param("id")))
 		id, _ := strconv.Atoi(c.Param("id"))
@@ -161,7 +161,7 @@ func (s *Server) AssignUserRole() gin.HandlerFunc {
 func (s *Server) AssignUserPermission() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.Header("Content-Type", "application/json")
-		var Data model.CoreUser
+		var Data model.AssignPermissionToUser
 
 		//id := uuid.Must(uuid.FromString(c.Param("id")))
 		id, _ := strconv.Atoi(c.Param("id"))

@@ -16,7 +16,9 @@ type CoreUser struct {
 	Status     int              `json:"status"`
 	Permission []CorePermission `gorm:"many2many:core_users_permissions" json:"permission"`
 	Role       []CoreRole       `gorm:"many2many:core_users_roles" json:"role"`
-	gorm.Model
+	CreatedAt  time.Time
+	UpdatedAt  time.Time
+	DeletedAt  gorm.DeletedAt `gorm:"index"`
 }
 
 type CoreUsers struct {
@@ -46,4 +48,12 @@ type UpdateCoreUserPassword struct {
 	UpdatedAt   time.Time `json:"updated_at"`
 	OldPassword string    `json:"old_password"`
 	Password    string    `json:"password"`
+}
+
+type AssignPermissionToUser struct {
+	Permission []int `json:"permission"`
+}
+
+type AssignRoleToUser struct {
+	Role []int `json:"role"`
 }

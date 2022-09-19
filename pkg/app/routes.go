@@ -40,7 +40,7 @@ func (s *Server) Routes() *gin.Engine {
 			role.GET("/list", s.ListRole())
 			role.GET("/detail/:id", s.roleDetail())
 			role.PUT("/update/:id", s.UpdateRole())
-			user.PUT("/assign_permission/:id", s.AssignRolePermission())
+			role.PUT("/assign_permission/:id", s.AssignRolePermission())
 			role.DELETE("/delete/:id", s.DeleteRole())
 		}
 	}

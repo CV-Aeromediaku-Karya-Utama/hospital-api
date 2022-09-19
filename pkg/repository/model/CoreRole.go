@@ -27,3 +27,7 @@ type BatchDeleteRole struct {
 type UpdateRole struct {
 	Name string `json:"name"`
 }
+
+type AssignPermissionToRole struct {
+	Permission []int `json:"permission"`
+}

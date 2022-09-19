@@ -15,13 +15,15 @@ type UserService interface {
 	UpdatePassword(UserID int, request model.UpdateCoreUserPassword) error
 	Delete(UserID int) error
 	Detail(UserID int) (model.CoreUser, error)
-	AssignPermission(UserID int, request model.CoreUser) error
-	AssignRole(UserID int, request model.CoreUser) error
+	AssignPermission(UserID int, request model.AssignPermissionToUser) error
+	AssignRole(UserID int, request model.AssignRoleToUser) error
 }
 
 // UserRepository is what lets our service do db operations without knowing anything about the implementation
 type UserRepository interface {
 	HashPassword(password string) (string, error)
+	GetPermissionById(PermissionID int) (model.CorePermission, error)
+	GetRoleById(RoleID int) (model.CoreRole, error)
 	CheckPasswordHash(password, hash string) bool
 	CreateUser(model.NewCoreUser) error
 	GetUserByID(id int) (model.CoreUser, error)
@@ -29,8 +31,8 @@ type UserRepository interface {
 	UpdateUser(UserUD int, request model.UpdateCoreUser) error
 	UpdateUserPassword(UserID int, request model.UpdateCoreUserPassword) error
 	DeleteUser(UserID int) error
-	AssignPermissionToUser(UserID int, request model.CoreUser) error
-	AssignRoleToUser(UserID int, request model.CoreUser) error
+	AssignPermissionToUser(UserID int, request []model.CorePermission) error
+	AssignRoleToUser(UserID int, request []model.CoreRole) error
 }
 
 type userService struct {
@@ -149,16 +151,32 @@ func (u *userService) New(user model.NewCoreUser) error {
 	return nil
 }
 
-func (u *userService) AssignPermission(UserID int, request model.CoreUser) error {
-	err := u.storage.AssignPermissionToUser(UserID, request)
+func (u *userService) AssignPermission(UserID int, request model.AssignPermissionToUser) error {
+	var permissions []model.CorePermission
+	for _, v := range request.Permission {
+		res, err := u.storage.GetPermissionById(v)
+		if err != nil {
+			return err
+		}
+		permissions = append(permissions, res)
+	}
+	err := u.storage.AssignPermissionToUser(UserID, permissions)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (u *userService) AssignRole(UserID int, request model.CoreUser) error {
-	err := u.storage.AssignRoleToUser(UserID, request)
+func (u *userService) AssignRole(UserID int, request model.AssignRoleToUser) error {
+	var roles []model.CoreRole
+	for _, v := range request.Role {
+		res, err := u.storage.GetRoleById(v)
+		if err != nil {
+			return err
+		}
+		roles = append(roles, res)
+	}
+	err := u.storage.AssignRoleToUser(UserID, roles)
 	if err != nil {
 		return err
 	}
