@@ -103,3 +103,13 @@ func (s *storage) BatchDeleteRole(request model.BatchDeleteRole) error {
 
 	return nil
 }
+
+func (s *storage) AssignPermissionToRole(RoleID int, request model.CoreRole) error {
+	var role model.CoreRole
+	s.gorm.First(&role, RoleID)
+	err := s.gorm.Model(&role).Association("Permission").Replace(request.Permission)
+	if err != nil {
+		return err
+	}
+	return nil
+}

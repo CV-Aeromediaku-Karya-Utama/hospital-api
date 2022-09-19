@@ -83,6 +83,32 @@ func (s *Server) ListRole() gin.HandlerFunc {
 	}
 }
 
+func (s *Server) AssignRolePermission() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.Header("Content-Type", "application/json")
+		var Data model.CoreRole
+
+		//id := uuid.Must(uuid.FromString(c.Param("id")))
+		id, _ := strconv.Atoi(c.Param("id"))
+
+		err := c.ShouldBindJSON(&Data)
+		if err != nil {
+			log.Printf("handler error: %v", err)
+			c.AbortWithStatusJSON(helper.BadResponse(err))
+			return
+		}
+
+		err = s.roleService.AssignPermission(id, Data)
+		if err != nil {
+			log.Printf("service error: %v", err)
+			c.AbortWithStatusJSON(helper.InternalErrorResponse(err))
+			return
+		}
+
+		c.JSON(helper.SuccessResponse("Permission has been updated"))
+	}
+}
+
 func (s *Server) UpdateRole() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.Header("Content-Type", "application/json")

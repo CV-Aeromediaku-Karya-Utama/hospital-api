@@ -29,8 +29,8 @@ type UserRepository interface {
 	UpdateUser(UserUD int, request model.UpdateCoreUser) error
 	UpdateUserPassword(UserID int, request model.UpdateCoreUserPassword) error
 	DeleteUser(UserID int) error
-	AssignPermission(UserID int, request model.CoreUser) error
-	AssignRole(UserID int, request model.CoreUser) error
+	AssignPermissionToUser(UserID int, request model.CoreUser) error
+	AssignRoleToUser(UserID int, request model.CoreUser) error
 }
 
 type userService struct {
@@ -150,7 +150,7 @@ func (u *userService) New(user model.NewCoreUser) error {
 }
 
 func (u *userService) AssignPermission(UserID int, request model.CoreUser) error {
-	err := u.storage.AssignPermission(UserID, request)
+	err := u.storage.AssignPermissionToUser(UserID, request)
 	if err != nil {
 		return err
 	}
@@ -158,7 +158,7 @@ func (u *userService) AssignPermission(UserID int, request model.CoreUser) error
 }
 
 func (u *userService) AssignRole(UserID int, request model.CoreUser) error {
-	err := u.storage.AssignRole(UserID, request)
+	err := u.storage.AssignRoleToUser(UserID, request)
 	if err != nil {
 		return err
 	}

@@ -154,7 +154,7 @@ func (s *Server) AssignUserRole() gin.HandlerFunc {
 			return
 		}
 
-		c.JSON(helper.SuccessResponse("user password updated"))
+		c.JSON(helper.SuccessResponse("Role has been updated"))
 	}
 }
 
@@ -180,7 +180,7 @@ func (s *Server) AssignUserPermission() gin.HandlerFunc {
 			return
 		}
 
-		c.JSON(helper.SuccessResponse("user password updated"))
+		c.JSON(helper.SuccessResponse("Permission has been updated"))
 	}
 }
 

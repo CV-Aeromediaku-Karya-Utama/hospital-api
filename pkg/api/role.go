@@ -14,6 +14,7 @@ type RoleService interface {
 	Update(RoleID int, role model.CoreRole) error
 	Delete(RoleID int) error
 	BatchDelete(request model.BatchDeleteRole) error
+	AssignPermission(RoleID int, request model.CoreRole) error
 }
 
 // RoleRepository is what lets our service do db operations without knowing anything about the implementation
@@ -24,6 +25,7 @@ type RoleRepository interface {
 	UpdateRole(RoleID int, role model.CoreRole) error
 	DeleteRole(RoleID int) error
 	BatchDeleteRole(request model.BatchDeleteRole) error
+	AssignPermissionToRole(UserID int, request model.CoreRole) error
 }
 
 type roleService struct {
@@ -80,6 +82,14 @@ func (s *roleService) Update(RoleID int, r model.CoreRole) error {
 		return err
 	}
 
+	return nil
+}
+
+func (s *roleService) AssignPermission(RoleID int, request model.CoreRole) error {
+	err := s.storage.AssignPermissionToRole(RoleID, request)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
