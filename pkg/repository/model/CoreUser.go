@@ -7,15 +7,15 @@ import (
 )
 
 type CoreUser struct {
-	ID         uint `gorm:"primaryKey"`
-	Name       string
-	Username   string
-	Sex        string
-	Email      string
-	Password   string
-	Status     int
-	Permission []CorePermission `gorm:"many2many:core_users_permissions"`
-	Role       []CoreRole       `gorm:"many2many:core_users_roles"`
+	ID         uint             `gorm:"primaryKey" json:"id"`
+	Name       string           `json:"name"`
+	Username   string           `json:"username"`
+	Sex        string           `json:"sex"`
+	Email      string           `json:"email"`
+	Password   string           `json:"password"`
+	Status     int              `json:"status"`
+	Permission []CorePermission `gorm:"many2many:core_users_permissions" json:"permission"`
+	Role       []CoreRole       `gorm:"many2many:core_users_roles" json:"role"`
 	gorm.Model
 }
 

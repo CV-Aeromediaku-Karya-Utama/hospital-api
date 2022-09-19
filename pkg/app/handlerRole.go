@@ -1,7 +1,6 @@
 package app
 
 import (
-	"errors"
 	"github.com/gin-gonic/gin"
 	"hospital-api/pkg/api/helper"
 	"hospital-api/pkg/repository/model"
@@ -19,14 +18,14 @@ func (s *Server) CreateRole() gin.HandlerFunc {
 		err := c.ShouldBindJSON(&newData)
 		if err != nil {
 			log.Printf("handler error: %v", err)
-			c.JSON(helper.ErrorResponse(err))
+			c.JSON(helper.BadResponse(err))
 			return
 		}
 
 		err = s.roleService.New(newData)
 		if err != nil {
 			log.Printf("service error: %v", err)
-			c.JSON(helper.ErrorResponse(err))
+			c.JSON(helper.InternalErrorResponse(err))
 			return
 		}
 
@@ -40,18 +39,18 @@ func (s *Server) roleDetail() gin.HandlerFunc {
 		id, err := strconv.Atoi(c.Param("id"))
 		if err != nil {
 			log.Printf("handler error: %v", err)
-			c.JSON(http.StatusBadRequest, errors.New("ID not found"))
+			c.JSON(helper.BadResponse("ID not found"))
 			return
 		}
 
 		data, err := s.roleService.Detail(id)
 		if err != nil {
 			log.Printf("service error: %v", err)
-			c.JSON(http.StatusInternalServerError, err)
+			c.JSON(helper.InternalErrorResponse(err))
 			return
 		}
 
-		c.JSON(http.StatusOK, data)
+		c.JSON(helper.SuccessResponse(data))
 	}
 }
 
@@ -61,13 +60,15 @@ func (s *Server) ListRole() gin.HandlerFunc {
 		pageStr := c.DefaultQuery("page", "1")
 		page, err := strconv.Atoi(pageStr)
 		if err != nil {
-			c.AbortWithStatus(http.StatusBadRequest)
+			log.Printf("handler error: %v", err)
+			c.AbortWithStatusJSON(helper.BadResponse(err))
 			return
 		}
 		perPageStr := c.DefaultQuery("per_page", "10")
 		perPage, err := strconv.Atoi(perPageStr)
 		if err != nil {
-			c.AbortWithStatus(http.StatusBadRequest)
+			log.Printf("handler error: %v", err)
+			c.AbortWithStatusJSON(helper.BadResponse(err))
 			return
 		}
 
@@ -78,7 +79,7 @@ func (s *Server) ListRole() gin.HandlerFunc {
 			return
 		}
 
-		c.JSON(http.StatusOK, roles)
+		c.JSON(helper.SuccessResponse(roles))
 	}
 }
 
@@ -90,24 +91,24 @@ func (s *Server) UpdateRole() gin.HandlerFunc {
 		err := c.ShouldBindJSON(&Data)
 		if err != nil {
 			log.Printf("handler error: %v", err)
-			c.JSON(http.StatusBadRequest, errors.New("can't bind the value"))
+			c.JSON(helper.BadResponse("can't bind the value"))
 			return
 		}
 		id, err := strconv.Atoi(c.Param("id"))
 		if err != nil {
 			log.Printf("handler error: %v", err)
-			c.JSON(http.StatusBadRequest, errors.New("ID not found"))
+			c.JSON(helper.BadResponse("ID not found"))
 			return
 		}
 
 		err = s.roleService.Update(id, Data)
 		if err != nil {
 			log.Printf("service error: %v", err)
-			c.JSON(http.StatusInternalServerError, errors.New("failed to update"))
+			c.JSON(helper.InternalErrorResponse("failed to update"))
 			return
 		}
 
-		c.JSON(http.StatusOK, nil)
+		c.JSON(helper.SuccessResponse(nil))
 	}
 }
 
@@ -118,18 +119,18 @@ func (s *Server) DeleteRole() gin.HandlerFunc {
 		id, err := strconv.Atoi(c.Param("id"))
 		if err != nil {
 			log.Printf("handler error: %v", err)
-			c.JSON(http.StatusBadRequest, errors.New("ID not found"))
+			c.JSON(helper.BadResponse("ID not found"))
 			return
 		}
 
 		err = s.roleService.Delete(id)
 		if err != nil {
 			log.Printf("service error: %v", err)
-			c.JSON(http.StatusInternalServerError, errors.New("failed to update"))
+			c.JSON(helper.InternalErrorResponse("failed to update"))
 			return
 		}
 
-		c.JSON(http.StatusOK, nil)
+		c.JSON(helper.SuccessResponse(nil))
 	}
 }
 
@@ -141,17 +142,17 @@ func (s *Server) BatchDeleteRole() gin.HandlerFunc {
 		err := c.ShouldBindJSON(&Data)
 		if err != nil {
 			log.Printf("handler error: %v", err)
-			c.JSON(http.StatusBadRequest, err)
+			c.JSON(helper.BadResponse(err))
 			return
 		}
 
 		err = s.roleService.BatchDelete(Data)
 		if err != nil {
 			log.Printf("service error: %v", err)
-			c.JSON(http.StatusInternalServerError, err)
+			c.JSON(helper.InternalErrorResponse(err))
 			return
 		}
 
-		c.JSON(http.StatusOK, nil)
+		c.JSON(helper.SuccessResponse(nil))
 	}
 }

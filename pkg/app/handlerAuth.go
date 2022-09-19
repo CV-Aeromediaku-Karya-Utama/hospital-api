@@ -28,22 +28,17 @@ func (s *Server) Login() gin.HandlerFunc {
 
 		if err := c.ShouldBindJSON(&input); err != nil {
 			log.Printf("handler error: %v", err)
-			c.JSON(http.StatusBadRequest, nil)
+			c.JSON(helper.BadResponse(nil))
 			return
 		}
 
 		token, err := s.authService.Login(input)
 		if err != nil {
 			log.Printf("service error: %v", err)
-			c.JSON(http.StatusInternalServerError, err)
+			c.JSON(helper.InternalErrorResponse(err))
 			return
 		}
 
-		response := map[string]string{
-			"status": "success",
-			"data":   token,
-		}
-
-		c.JSON(http.StatusOK, response)
+		c.JSON(helper.SuccessResponse(token))
 	}
 }

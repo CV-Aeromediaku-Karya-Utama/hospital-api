@@ -5,9 +5,9 @@ import (
 )
 
 type CoreRole struct {
-	ID         uint `gorm:"primaryKey"`
-	Name       string
-	Permission []CorePermission `gorm:"many2many:core_roles_permissions"`
+	ID         uint             `gorm:"primaryKey" json:"id"`
+	Name       string           `json:"name"`
+	Permission []CorePermission `gorm:"many2many:core_roles_permissions" json:"permission"`
 }
 
 type NewCoreRole struct {

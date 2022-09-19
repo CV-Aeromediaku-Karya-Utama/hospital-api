@@ -48,7 +48,15 @@ func SuccessResponse(message any) (int, map[string]any) {
 	return http.StatusOK, response
 }
 
-func ErrorResponse(message any) (int, map[string]any) {
+func BadResponse(message any) (int, map[string]any) {
+	response := map[string]any{
+		"data":   message,
+		"status": "failed",
+	}
+	return http.StatusBadRequest, response
+}
+
+func InternalErrorResponse(message any) (int, map[string]any) {
 	response := map[string]any{
 		"data":   message,
 		"status": "failed",

@@ -3,8 +3,8 @@ package model
 import "hospital-api/pkg/api/helper"
 
 type CorePermission struct {
-	ID   uint `gorm:"primaryKey"`
-	Name string
+	ID   uint   `gorm:"primaryKey" json:"id"`
+	Name string `json:"name"`
 }
 
 type CorePermissions struct {
