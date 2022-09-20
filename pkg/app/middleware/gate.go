@@ -60,12 +60,12 @@ func GatePermission(scope string) gin.HandlerFunc {
 				fmt.Println("Check Roles passed")
 				c.Next()
 				return
-			} else {
-				c.AbortWithStatusJSON(http.StatusBadRequest, UnsignedResponse{
-					Message: "no access provided",
-				})
-				return
 			}
 		}
+
+		c.AbortWithStatusJSON(http.StatusBadRequest, UnsignedResponse{
+			Message: "no access provided",
+		})
+		return
 	}
 }
