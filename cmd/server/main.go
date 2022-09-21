@@ -17,7 +17,6 @@ import (
 
 func main() {
 	if err := godotenv.Load(); err != nil {
-		//log.Fatal("Error loading .env file")
 		fmt.Println("Error loading .env file")
 	}
 	if err := run(); err != nil {
@@ -27,8 +26,8 @@ func main() {
 }
 
 func run() error {
-	connectionString := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s",
-		os.Getenv("DB_HOST"), os.Getenv("DB_PORT"), os.Getenv("DB_USER"), os.Getenv("DB_PASS"), os.Getenv("DB_NAME"), os.Getenv("SSL_MODE"))
+	connectionString := fmt.Sprintf("postgres://%v:%v@%v:%v/%v?sslmode=disable",
+		os.Getenv("POSTGRES_USER"), os.Getenv("POSTGRES_PASSWORD"), os.Getenv("POSTGRES_HOST"), os.Getenv("POSTGRES_PORT"), os.Getenv("POSTGRES_DB"))
 
 	db, err := setupDatabase(connectionString)
 	if err != nil {
@@ -74,7 +73,7 @@ func run() error {
 }
 
 func setupDatabase(connString string) (*sql.DB, error) {
-	db, err := sql.Open(os.Getenv("DB_DRIVER"), connString)
+	db, err := sql.Open("postgres", connString)
 	if err != nil {
 		return nil, err
 	}
