@@ -37,7 +37,7 @@ func (s *Server) Run() error {
 	r := s.Routes()
 
 	// run the server through the router
-	port := os.Getenv("APP_PORT")
+	port := os.Getenv("PORT")
 	if port == "" {
 		port = "9000"
 	}
