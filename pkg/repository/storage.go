@@ -67,6 +67,9 @@ func (s *storage) RunGormMigrations(gormDB *gorm.DB) error {
 		&model.CorePermission{},
 		&model.CoreRole{},
 		&model.CoreUser{},
+		&model.HspDisciplines{},
+		&model.HspUnit{},
+		&model.HspDoctor{},
 	); err != nil {
 		return err
 	}

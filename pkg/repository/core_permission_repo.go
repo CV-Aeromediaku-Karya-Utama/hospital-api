@@ -67,3 +67,24 @@ func (s *storage) ListPermission(page int, perPage int) (model.CorePermissions, 
 
 	return res, nil
 }
+
+func (s *storage) CreatePermission(request model.NewCorePermission) error {
+	statement := `INSERT INTO core_permissions (name) VALUES ($1);`
+
+	err := s.db.QueryRow(statement, request.Name).Err()
+
+	if err != nil {
+		log.Printf("this was the error: %v", err)
+		return err
+	}
+
+	return nil
+}
+
+func (s *storage) DeletePermission(PermissionID int) error {
+	if err := s.gorm.Delete(&model.CorePermission{ID: uint(PermissionID)}).Error; err != nil {
+		log.Printf("this was the error: %v", err.Error())
+		return err
+	}
+	return nil
+}

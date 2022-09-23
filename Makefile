@@ -11,5 +11,5 @@ createmigrate:
 
 service:
 	touch pkg/api/${file}.go
-	touch pkg/app/handler${file}.go
-	touch pkg/repository/repo${file}.go
+	touch pkg/app/${file}_handler.go
+	touch pkg/repository/${file}_repo.go

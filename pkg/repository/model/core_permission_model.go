@@ -7,6 +7,10 @@ type CorePermission struct {
 	Name string `json:"name"`
 }
 
+type NewCorePermission struct {
+	Name string `json:"name"`
+}
+
 type CorePermissions struct {
 	Permission []CorePermission         `json:"permissions"`
 	Pagination helper.PaginationRequest `json:"pagination"`

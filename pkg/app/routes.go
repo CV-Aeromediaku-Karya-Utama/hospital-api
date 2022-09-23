@@ -36,6 +36,8 @@ func (s *Server) Routes() *gin.Engine {
 			{
 				permission.GET("/list", s.ListPermission())
 				permission.GET("/detail/:id", s.permissionDetail())
+				permission.POST("/create", s.CreatePermission())
+				permission.DELETE("/delete/:id", s.DeletePermission())
 			}
 			role := protected.Group("/role").Use(middleware.GatePermission("manage-role"))
 			{
