@@ -9,11 +9,14 @@ import (
 )
 
 type Server struct {
-	router            *gin.Engine
-	authService       api.AuthService
-	roleService       api.RoleService
-	userService       api.UserService
-	permissionService api.PermissionService
+	router               *gin.Engine
+	authService          api.AuthService
+	roleService          api.RoleService
+	userService          api.UserService
+	permissionService    api.PermissionService
+	hspDisciplineService api.HspDisciplineService
+	hspUnitService       api.HspUnitService
+	hspDoctorService     api.HspDoctorService
 }
 
 func NewServer(
@@ -22,13 +25,19 @@ func NewServer(
 	roleService api.RoleService,
 	userService api.UserService,
 	permissionService api.PermissionService,
+	hspDisciplineService api.HspDisciplineService,
+	hspUnitService api.HspUnitService,
+	hspDoctorService api.HspDoctorService,
 ) *Server {
 	return &Server{
-		router:            router,
-		authService:       authService,
-		roleService:       roleService,
-		userService:       userService,
-		permissionService: permissionService,
+		router:               router,
+		authService:          authService,
+		roleService:          roleService,
+		userService:          userService,
+		permissionService:    permissionService,
+		hspDisciplineService: hspDisciplineService,
+		hspUnitService:       hspUnitService,
+		hspDoctorService:     hspDoctorService,
 	}
 }
 

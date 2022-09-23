@@ -24,6 +24,9 @@ type Storage interface {
 	api.RoleRepository
 	api.AuthRepository
 	api.PermissionRepository
+	api.HspDisciplineRepository
+	api.HspUnitRepository
+	api.HspDoctorRepository
 }
 
 type storage struct {
@@ -67,7 +70,7 @@ func (s *storage) RunGormMigrations(gormDB *gorm.DB) error {
 		&model.CorePermission{},
 		&model.CoreRole{},
 		&model.CoreUser{},
-		&model.HspDisciplines{},
+		&model.HspDiscipline{},
 		&model.HspUnit{},
 		&model.HspDoctor{},
 	); err != nil {

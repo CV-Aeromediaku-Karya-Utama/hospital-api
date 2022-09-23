@@ -59,6 +59,9 @@ func run() error {
 	userService := api.NewUserService(storage)
 	authService := api.NewAuthService(storage)
 	permissionService := api.NewPermissionService(storage)
+	hspDisciplineService := api.NewHspDisciplineService(storage)
+	hspUnitService := api.NewHspUnitService(storage)
+	hspDoctorService := api.NewHspDoctorService(storage)
 
 	// start the server
 	server := app.NewServer(
@@ -67,6 +70,9 @@ func run() error {
 		roleService,
 		userService,
 		permissionService,
+		hspDisciplineService,
+		hspUnitService,
+		hspDoctorService,
 	)
 	err = server.Run()
 	if err != nil {
